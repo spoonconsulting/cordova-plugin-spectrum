@@ -10,7 +10,7 @@
 @implementation SpectrumManager
 -(void)transcodeImage:(CDVInvokedUrlCommand*)command{
     NSDictionary* config = command.arguments[0];
-//    NSString* imageId  = config[@"id"];
+    //    NSString* imageId  = config[@"id"];
     NSString* sourcePath  = config[@"sourcePath"];
     NSString* destinationPath  = config[@"destinationPath"];
     NSNumber* targetSize = config[@"targetSize"];
@@ -22,22 +22,26 @@
     if (!destinationPath) {
         return [self returnResult:command withMsg:@"missing destination path" success:false];
     }
-    
+    sourcePath = [sourcePath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+    destinationPath = [destinationPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     if (![[NSFileManager defaultManager] fileExistsAtPath:sourcePath] ) {
         return [self returnResult:command withMsg:@"source file does not exists" success:false];
     }
     CGSize desiredSize = !targetSize ? CGSizeZero : CGSizeMake(targetSize.intValue, targetSize.intValue);
-    [self transcodeImageAtPath:sourcePath toPath:destinationPath targetSize:desiredSize onCompletion:^(NSError * error, NSString *finalPath) {
-        if (error){
-             return [self returnResult:command withMsg: error.localizedDescription success:false];
-        }else{
-            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                          messageAsDictionary:@{@"transcodePath": finalPath}];
-            [pluginResult setKeepCallback:@YES];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        }
-    }];
-
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self transcodeImageAtPath:sourcePath toPath:destinationPath targetSize:desiredSize onCompletion:^(NSError * error, NSString *finalPath) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (error){
+                    return [self returnResult:command withMsg: error.localizedDescription success:false];
+                }else{
+                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{@"transcodePath": finalPath}];
+                    [pluginResult setKeepCallback:@YES];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                }
+            });
+        }];
+     });
+    
 }
 -(void)returnResult:(CDVInvokedUrlCommand *) command withMsg: (NSString*)msg success:(BOOL)success {
     
@@ -49,9 +53,7 @@
     if (!image) {
         NSError *err = [NSError errorWithDomain:@"com.spectrum.error"
                                            code:100
-                                       userInfo:@{
-                                                  NSLocalizedDescriptionKey:@"invalid source file"
-                                                  }];
+                                       userInfo:@{NSLocalizedDescriptionKey:@"invalid source file"}];
         return handler(err, nil);
     }
     FSPEncodeRequirement *encodeRequirement =
@@ -79,7 +81,7 @@
         return handler(error, nil);
     }else{
         NSLog(@"encoded image in %f secs", result.duration/1000.0);
-         handler(nil, targetPath);
+        handler(nil, targetPath);
     }
     
 }
