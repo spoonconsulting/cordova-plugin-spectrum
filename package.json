@@ -1,0 +1,45 @@
+{
+  "name": "cordova-plugin-spectrum",
+  "version": "1.1.0",
+  "description": "Cordova plugin for Spectrum image transcoding library",
+  "cordova": {
+    "id": "cordova-plugin-spectrum",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spoonconsulting/cordova-plugin-spectrum"
+  },
+  "keywords": [
+    "cordova",
+    "image",
+    "transcode",
+    "compress",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "scripts": {},
+  "dependencies": {},
+  "author": "Spoon Consulting",
+  "contributors": [
+    {
+      "name": "Luc Boissaye",
+      "email": "luc@boissaye.fr",
+      "url": "https://github.com/ombr",
+      "hireable": true
+    }
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "cordovaDependencies": {
+      "2.0.0": {
+        "cordova": ">100"
+      }
+    }
+  },
+  "devDependencies": {}
+}
