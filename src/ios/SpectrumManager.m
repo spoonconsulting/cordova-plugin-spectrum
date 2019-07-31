@@ -10,7 +10,6 @@
 @implementation SpectrumManager
 -(void)transcodeImage:(CDVInvokedUrlCommand*)command{
     NSDictionary* config = command.arguments[0];
-    //    NSString* imageId  = config[@"id"];
     NSString* sourcePath  = config[@"sourcePath"];
     NSString* destinationPath  = config[@"destinationPath"];
     NSNumber* targetSize = config[@"targetSize"];
@@ -19,22 +18,32 @@
         return [self returnResult:command withMsg:@"missing source path" success:false];
     }
     
-    if (!destinationPath) {
-        return [self returnResult:command withMsg:@"missing destination path" success:false];
-    }
     sourcePath = [sourcePath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-    destinationPath = [destinationPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     if (![[NSFileManager defaultManager] fileExistsAtPath:sourcePath] ) {
         return [self returnResult:command withMsg:@"source file does not exists" success:false];
     }
+    BOOL shouldReplaceOriginalFile = !destinationPath || [destinationPath isEqualToString:sourcePath];
+    if (shouldReplaceOriginalFile) {
+        NSString* currentFolderPath = [sourcePath stringByDeletingLastPathComponent];
+        NSString * timestampName = [NSString stringWithFormat:@"%f.%@",[[NSDate date] timeIntervalSince1970] * 1000, [sourcePath pathExtension]];
+        destinationPath = [currentFolderPath stringByAppendingPathComponent:timestampName];
+    }
+    destinationPath = [destinationPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     CGSize desiredSize = !targetSize ? CGSizeZero : CGSizeMake(targetSize.intValue, targetSize.intValue);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self transcodeImageAtPath:sourcePath toPath:destinationPath targetSize:desiredSize onCompletion:^(NSError * error, NSString *finalPath) {
+            if (shouldReplaceOriginalFile && !error){
+                NSFileManager *fileManager = [NSFileManager defaultManager];
+                if ([fileManager removeItemAtPath:sourcePath error:nil]){
+                    [fileManager copyItemAtPath:destinationPath toPath:sourcePath error:nil];
+                    [fileManager removeItemAtPath:destinationPath error:nil];
+                }
+            }
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (error){
                     return [self returnResult:command withMsg: error.localizedDescription success:false];
                 }else{
-                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{@"transcodePath": finalPath}];
+                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{}];
                     [pluginResult setKeepCallback:@YES];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
                 }
