@@ -14,10 +14,12 @@
     NSString* destinationPath  = config[@"destinationPath"];
     NSNumber* targetSize = config[@"targetSize"];
     
-    if (!sourcePath) {
+    if (!sourcePath)
         return [self returnResult:command withMsg:@"missing source path" success:false];
-    }
     
+    if (!spectrum)
+        spectrum = [[FSPSpectrum alloc] initWithPlugins:@[[FSPJpegPlugin new], [FSPPngPlugin new]] configuration:nil];
+
     sourcePath = [sourcePath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     if (![[NSFileManager defaultManager] fileExistsAtPath:sourcePath] ) {
         return [self returnResult:command withMsg:@"source file does not exists" success:false];
@@ -83,7 +85,6 @@
                      outputPixelSpecificationRequirement:nil];
     
     NSError *error;
-    FSPSpectrum *spectrum = [[FSPSpectrum alloc] initWithPlugins:@[[FSPJpegPlugin new], [FSPPngPlugin new]] configuration:nil];
     FSPResult *result = [spectrum encodeImage:image toFileAtURL:[NSURL fileURLWithPath:targetPath] options:options error:&error];
     if (error){
         NSLog(@"could not transcode image %@", error.localizedDescription);

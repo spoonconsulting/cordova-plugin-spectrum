@@ -12,7 +12,9 @@
 #import <SpectrumKit/FSPPngPlugin.h>
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SpectrumManager : CDVPlugin
+@interface SpectrumManager : CDVPlugin{
+    FSPSpectrum *spectrum;
+}
 -(void)transcodeImage:(CDVInvokedUrlCommand*)command;
 @end
 
