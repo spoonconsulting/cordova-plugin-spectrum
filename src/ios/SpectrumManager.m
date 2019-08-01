@@ -8,22 +8,22 @@
 #import "SpectrumManager.h"
 
 @implementation SpectrumManager
--(void)transcodeImage:(CDVInvokedUrlCommand*)command{
+-(void)compressImage:(CDVInvokedUrlCommand*)command{
     NSDictionary* config = command.arguments[0];
-    NSString* sourcePath  = config[@"sourcePath"];
-    NSString* destinationPath  = config[@"destinationPath"];
+    NSString* sourcePath = config[@"sourcePath"];
+    NSString* destinationPath = config[@"destinationPath"];
     NSNumber* targetSize = config[@"targetSize"];
     
     if (!sourcePath)
-        return [self returnResult:command withMsg:@"missing source path" success:false];
+        return [self returnErrorResult:command withMsg:@"missing source path"];
     
     if (!spectrum)
         spectrum = [[FSPSpectrum alloc] initWithPlugins:@[[FSPJpegPlugin new], [FSPPngPlugin new]] configuration:nil];
-
+    
     sourcePath = [sourcePath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:sourcePath] ) {
-        return [self returnResult:command withMsg:@"source file does not exists" success:false];
-    }
+    if (![[NSFileManager defaultManager] fileExistsAtPath:sourcePath])
+        return [self returnErrorResult:command withMsg:@"source file does not exists"];
+    
     BOOL shouldReplaceOriginalFile = !destinationPath || [destinationPath isEqualToString:sourcePath];
     if (shouldReplaceOriginalFile) {
         NSString* currentFolderPath = [sourcePath stringByDeletingLastPathComponent];
@@ -43,7 +43,7 @@
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (error){
-                    return [self returnResult:command withMsg: error.localizedDescription success:false];
+                    return [self returnErrorResult:command withMsg: error.localizedDescription];
                 }else{
                     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{}];
                     [pluginResult setKeepCallback:@YES];
@@ -51,12 +51,12 @@
                 }
             });
         }];
-     }];
+    }];
     
 }
--(void)returnResult:(CDVInvokedUrlCommand *) command withMsg: (NSString*)msg success:(BOOL)success {
-    
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:success ? CDVCommandStatus_OK : CDVCommandStatus_ERROR messageAsString:msg];
+-(void)returnErrorResult:(CDVInvokedUrlCommand *) command withMsg: (NSString*)msg{
+    NSString* sourcePath = ((NSDictionary*)command.arguments[0])[@"sourcePath"];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus: CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ : %@", msg, sourcePath]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 -(void)transcodeImageAtPath:(NSString*)path toPath:(NSString*)targetPath targetSize:(CGSize)targetSize onCompletion:(void (^)(NSError* error, NSString* finalPath))handler{
@@ -64,7 +64,7 @@
     if (!image) {
         NSError *err = [NSError errorWithDomain:@"com.spectrum.error"
                                            code:100
-                                       userInfo:@{NSLocalizedDescriptionKey:@"invalid source file"}];
+                                       userInfo:@{NSLocalizedDescriptionKey:[@"invalid source file: " stringByAppendingString:path]}];
         return handler(err, nil);
     }
     FSPEncodeRequirement *encodeRequirement =
@@ -85,12 +85,10 @@
                      outputPixelSpecificationRequirement:nil];
     
     NSError *error;
-    FSPResult *result = [spectrum encodeImage:image toFileAtURL:[NSURL fileURLWithPath:targetPath] options:options error:&error];
+    [spectrum encodeImage:image toFileAtURL:[NSURL fileURLWithPath:targetPath] options:options error:&error];
     if (error){
-        NSLog(@"could not transcode image %@", error.localizedDescription);
         return handler(error, nil);
-    }else{
-        NSLog(@"encoded image in %f secs", result.duration/1000.0);
+    } else {
         handler(nil, targetPath);
     }
     
