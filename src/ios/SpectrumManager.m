@@ -32,7 +32,7 @@
     }
     destinationPath = [destinationPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     CGSize desiredSize = !targetSize ? CGSizeZero : CGSizeMake(targetSize.intValue, targetSize.intValue);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self.commandDelegate runInBackground:^{
         [self transcodeImageAtPath:sourcePath toPath:destinationPath targetSize:desiredSize onCompletion:^(NSError * error, NSString *finalPath) {
             if (shouldReplaceOriginalFile && !error){
                 NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -51,7 +51,7 @@
                 }
             });
         }];
-     });
+     }];
     
 }
 -(void)returnResult:(CDVInvokedUrlCommand *) command withMsg: (NSString*)msg success:(BOOL)success {
