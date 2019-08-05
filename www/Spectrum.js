@@ -1,10 +1,10 @@
 var exec = require("cordova/exec");
 
 module.exports = {
-	transcodeImage: transcodeImage
+	compressImage: compressImage
 };
 
-function transcodeImage (params, success, fail) {
+function compressImage (params, success, fail) {
     if (!params) {
         return fail('missing options');
     }
