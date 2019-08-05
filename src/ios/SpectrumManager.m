@@ -6,7 +6,7 @@
 //
 
 #import "SpectrumManager.h"
-
+#import "CDVFile.h"
 @implementation SpectrumManager
 -(void)compressImage:(CDVInvokedUrlCommand*)command{
     NSDictionary* config = command.arguments[0];
@@ -18,15 +18,13 @@
     
     if (!spectrum)
         spectrum = [[FSPSpectrum alloc] initWithPlugins:@[[FSPJpegPlugin new], [FSPPngPlugin new]] configuration:nil];
-    
-    sourcePath = [sourcePath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+    sourcePath = [self resolveNativePath: sourcePath];
     if (![[NSFileManager defaultManager] fileExistsAtPath:sourcePath])
         return [self returnErrorResult:command withMsg:@"source file does not exists"];
     
     NSString* currentFolderPath = [sourcePath stringByDeletingLastPathComponent];
     NSString* timestampName = [NSString stringWithFormat:@"%f.%@",[[NSDate date] timeIntervalSince1970] * 1000, [sourcePath pathExtension]];
     NSString* destinationPath = [currentFolderPath stringByAppendingPathComponent:timestampName];
-    destinationPath = [destinationPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     CGSize desiredSize = !targetSize ? CGSizeZero : CGSizeMake(targetSize.intValue, targetSize.intValue);
     [self.commandDelegate runInBackground:^{
         [self transcodeImageAtPath:sourcePath toPath:destinationPath targetSize:desiredSize onCompletion:^(NSError * error, NSString *finalPath) {
@@ -49,6 +47,12 @@
         }];
     }];
     
+}
+-(NSString*)resolveNativePath:(NSString*)path{
+    CDVFile *filePlugin = [self.commandDelegate getCommandInstance:@"File"];
+    CDVFilesystemURL *url = [CDVFilesystemURL fileSystemURLWithString:path];
+    NSString* cdvFilePath = [filePlugin filesystemPathForURL:url];
+    return cdvFilePath? cdvFilePath : [path stringByReplacingOccurrencesOfString:@"file://" withString:@""];
 }
 -(void)returnErrorResult:(CDVInvokedUrlCommand *) command withMsg: (NSString*)msg{
     NSString* sourcePath = ((NSDictionary*)command.arguments[0])[@"sourcePath"];
