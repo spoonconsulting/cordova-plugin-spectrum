@@ -11,7 +11,6 @@
 -(void)compressImage:(CDVInvokedUrlCommand*)command{
     NSDictionary* config = command.arguments[0];
     NSString* sourcePath = config[@"sourcePath"];
-    NSString* destinationPath = config[@"destinationPath"];
     NSNumber* targetSize = config[@"targetSize"];
     
     if (!sourcePath)
@@ -24,17 +23,14 @@
     if (![[NSFileManager defaultManager] fileExistsAtPath:sourcePath])
         return [self returnErrorResult:command withMsg:@"source file does not exists"];
     
-    BOOL shouldReplaceOriginalFile = !destinationPath || [destinationPath isEqualToString:sourcePath];
-    if (shouldReplaceOriginalFile) {
-        NSString* currentFolderPath = [sourcePath stringByDeletingLastPathComponent];
-        NSString * timestampName = [NSString stringWithFormat:@"%f.%@",[[NSDate date] timeIntervalSince1970] * 1000, [sourcePath pathExtension]];
-        destinationPath = [currentFolderPath stringByAppendingPathComponent:timestampName];
-    }
+    NSString* currentFolderPath = [sourcePath stringByDeletingLastPathComponent];
+    NSString* timestampName = [NSString stringWithFormat:@"%f.%@",[[NSDate date] timeIntervalSince1970] * 1000, [sourcePath pathExtension]];
+    NSString* destinationPath = [currentFolderPath stringByAppendingPathComponent:timestampName];
     destinationPath = [destinationPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     CGSize desiredSize = !targetSize ? CGSizeZero : CGSizeMake(targetSize.intValue, targetSize.intValue);
     [self.commandDelegate runInBackground:^{
         [self transcodeImageAtPath:sourcePath toPath:destinationPath targetSize:desiredSize onCompletion:^(NSError * error, NSString *finalPath) {
-            if (shouldReplaceOriginalFile && !error){
+            if (!error){
                 NSFileManager *fileManager = [NSFileManager defaultManager];
                 if ([fileManager removeItemAtPath:sourcePath error:nil]){
                     [fileManager copyItemAtPath:destinationPath toPath:sourcePath error:nil];
@@ -43,9 +39,9 @@
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (error){
-                    return [self returnErrorResult:command withMsg: error.localizedDescription];
+                    return [self returnErrorResult:command withMsg:error.localizedDescription];
                 }else{
-                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{}];
+                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
                     [pluginResult setKeepCallback:@YES];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
                 }
@@ -62,7 +58,7 @@
 -(void)transcodeImageAtPath:(NSString*)path toPath:(NSString*)targetPath targetSize:(CGSize)targetSize onCompletion:(void (^)(NSError* error, NSString* finalPath))handler{
     UIImage* image = [UIImage imageWithContentsOfFile:path];
     if (!image) {
-        NSError *err = [NSError errorWithDomain:@"com.spectrum.error"
+        NSError *err = [NSError errorWithDomain:@"com.plugin-spectrum.error"
                                            code:100
                                        userInfo:@{NSLocalizedDescriptionKey:[@"invalid source file: " stringByAppendingString:path]}];
         return handler(err, nil);
@@ -91,6 +87,5 @@
     } else {
         handler(nil, targetPath);
     }
-    
 }
 @end
