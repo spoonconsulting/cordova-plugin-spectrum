@@ -1,4 +1,4 @@
-package com.spoon.spectrum.SpectrumManager;
+package com.spoon.spectrum;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
