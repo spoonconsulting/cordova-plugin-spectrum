@@ -1,4 +1,5 @@
 package com.spoon.spectrum;
+
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -38,12 +39,15 @@ import static com.facebook.spectrum.image.EncodedImageFormat.JPEG;
 
 public class SpectrumManager extends CordovaPlugin {
 
-    private Spectrum mSpectrum;
+    private static Spectrum mSpectrum;
+
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
-        SpectrumSoLoader.init(cordova.getActivity());
-        mSpectrum = Spectrum.make(new SpectrumLogcatLogger(Log.VERBOSE), DefaultPlugins.get());
+        if (mSpectrum == null) {
+            SpectrumSoLoader.init(cordova.getActivity());
+            mSpectrum = Spectrum.make(new SpectrumLogcatLogger(Log.INFO), DefaultPlugins.get());
+        }
     }
 
     @Override
@@ -51,9 +55,9 @@ public class SpectrumManager extends CordovaPlugin {
         try {
             if (action.equals("compressImage")) {
                 JSONObject config = args.length() > 0 ? (JSONObject) args.get(0) : null;
-                String path = config.has("targetSize") ? config.getString("sourcePath") : null;
+                String path = config.has("sourcePath") ? config.getString("sourcePath") : null;
                 int size = config.has("targetSize") ? config.getInt("targetSize") : 0;
-                transcodeImage(path,size, callbackContext);
+                transcodeImage(path, size, callbackContext);
                 return true;
             }
         } catch (Exception e) {
@@ -62,57 +66,62 @@ public class SpectrumManager extends CordovaPlugin {
         return false;
     }
 
-    private void transcodeImage(String sourcePath, int size,  CallbackContext callbackContext) {
-        try {
-            if (sourcePath == null){
-                callbackContext.error("missing source path");
-                return;
-            }
-            File file = new File(sourcePath);
-            if (!file.exists()){
-                callbackContext.error("source file does not exists");
-                return;
-            }
-            final InputStream inputStream = new FileInputStream(sourcePath);
-            ImageSize targetSize = null;
-            if (size > 0){
-                targetSize = new ImageSize(size, size);
-            }
-            final TranscodeOptions transcodeOptions =
-                    TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80))
-                            .resize(ResizeRequirement.Mode.EXACT_OR_SMALLER, targetSize)
-                            .build();
+    private void transcodeImage(String path, int size, CallbackContext callbackContext) {
 
-            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
-            String destinationFileName = UUID.randomUUID().toString() + fileExtension;
-            String destinationPath = sourcePath.replace(file.getName(),destinationFileName);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    if (path == null) {
+                        callbackContext.error("missing source path");
+                        return;
+                    }
+                    final String sourcePath = path.replace("file://", "");
+                    File file = new File(sourcePath);
+                    if (!file.exists()) {
+                        callbackContext.error("source file does not exists");
+                        return;
+                    }
 
-            final SpectrumResult result = mSpectrum.transcode(
-                    EncodedImageSource.from(inputStream),
-                    EncodedImageSink.from(destinationPath),
-                    transcodeOptions,
-                    "com.spectrum-plugin");
-            if (result.isSuccessful()){
-                if (!file.delete()){
-                    callbackContext.error("could not delete source image");
-                    return;
+                    final InputStream inputStream = new FileInputStream(sourcePath);
+                    final TranscodeOptions transcodeOptions;
+                    if (size > 0) {
+                        transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).resize(ResizeRequirement.Mode.EXACT_OR_SMALLER, new ImageSize(size, size)).build();
+                    } else {
+                        transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).build();
+                    }
+
+                    String fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
+                    String destinationFileName = UUID.randomUUID().toString() + fileExtension;
+                    String destinationPath = sourcePath.replace(file.getName(), destinationFileName);
+
+                    final SpectrumResult result = mSpectrum.transcode(
+                            EncodedImageSource.from(inputStream),
+                            EncodedImageSink.from(destinationPath),
+                            transcodeOptions,
+                            "com.spectrum-plugin");
+                    if (result.isSuccessful()) {
+                        if (!file.delete()) {
+                            callbackContext.error("could not delete source image");
+                            return;
+                        }
+                        if (!new File(destinationPath).renameTo(file)) {
+                            callbackContext.error("could not rename image");
+                            return;
+                        }
+                        PluginResult plugingResult = new PluginResult(PluginResult.Status.OK);
+                        plugingResult.setKeepCallback(true);
+                        callbackContext.sendPluginResult(plugingResult);
+                    } else {
+                        callbackContext.error("could not compress image");
+                    }
+
+                } catch (final IOException e) {
+                    callbackContext.error("source file does not exists");
+                } catch (final SpectrumException e) {
+                    callbackContext.error("invalid image");
                 }
-                if (!new File(destinationPath).renameTo(file)){
-                    callbackContext.error("could not rename image");
-                    return;
-                }
-                PluginResult plugingResult = new PluginResult(PluginResult.Status.OK);
-                plugingResult.setKeepCallback(true);
-                callbackContext.sendPluginResult(plugingResult);
-            }else{
-                callbackContext.error("could not compress image");
             }
-        } catch (final IOException e) {
-            callbackContext.error("source file does not exists");
-        } catch (final SpectrumException e) {
-            callbackContext.error("invalid image");
-        }
-
+        });
     }
 
 }
