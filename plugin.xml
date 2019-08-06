@@ -11,7 +11,7 @@
     <keywords>cordova, plugin, spectrum, transcoding, image</keywords>
     <license>Apache 2.0</license>
     <repo>https://github.com/spoonconsulting/cordova-plugin-spectrum.git</repo>
-     <js-module src="tests.js" name="tests"></js-module>
+     <!-- <js-module src="tests.js" name="tests"></js-module> -->
     <js-module src="www/SpectrumManager.js" name="SpectrumManager">
         <clobbers target="SpectrumManager" />
     </js-module>
