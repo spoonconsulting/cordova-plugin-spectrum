@@ -23,7 +23,12 @@
         <framework src="com.facebook.spectrum:spectrum-core:1.1.0" />
         <framework src="com.facebook.spectrum:spectrum-jpeg:1.1.0" />
         <framework src="com.facebook.spectrum:spectrum-png:1.1.0" />
-        <source-file src="src/android/SpectrumManager.java" target-dir="src/com/spoon/SpectrumManager" />
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="SpectrumManager">
+                <param name="android-package" value="com.spoon.spectrum.SpectrumManager" />
+            </feature>
+        </config-file>
+        <source-file src="src/android/SpectrumManager.java" target-dir="src/com/spoon/spectrum/SpectrumManager" />
     </platform>
 	
 	<!-- ios -->
