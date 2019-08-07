@@ -5,8 +5,12 @@ module.exports = {
 };
 
 function compressImage (params, success, fail) {
-    if (!params) {
+    if (!params) 
         return fail('missing options');
-    }
+
+    if (!params.sourcePath) 
+        return fail('sourcePath is missing');
+    
+    params.sourcePath = params.sourcePath.replace('file://', '');
 	exec(success,fail, "SpectrumManager", "compressImage", [params]);
 }

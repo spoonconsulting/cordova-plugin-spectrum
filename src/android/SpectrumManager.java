@@ -22,6 +22,7 @@ import com.facebook.spectrum.requirements.ResizeRequirement;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
@@ -69,11 +70,10 @@ public class SpectrumManager extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 try {
-                    if (path == null) {
-                        callbackContext.error("missing source path");
-                        return;
-                    }
-                    final String sourcePath = path.replace("file://", "");
+                    Uri tmpSrc = Uri.parse(path);
+                    final Uri sourceUri = webView.getResourceApi().remapUri(tmpSrc);
+                    final String sourcePath = sourceUri.toString();
+
                     File file = new File(sourcePath);
                     if (!file.exists()) {
                         callbackContext.error("source file does not exists");
@@ -98,7 +98,7 @@ public class SpectrumManager extends CordovaPlugin {
                     transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).resize(ResizeRequirement.Mode.EXACT_OR_SMALLER, new ImageSize(width, height)).build();
 
                     String fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
-                    String destinationFileName = UUID.randomUUID().toString() + "_compressed."+ fileExtension;
+                    String destinationFileName = UUID.randomUUID().toString() + "_compressed." + fileExtension;
                     String destinationPath = sourcePath.replace(file.getName(), destinationFileName);
 
                     final SpectrumResult result = mSpectrum.transcode(
