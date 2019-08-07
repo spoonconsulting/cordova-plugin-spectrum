@@ -8,8 +8,11 @@ function compressImage (params, success, fail) {
     if (!params) 
         return fail('missing options');
 
-    if (!params.sourcePath) 
+    if (!params.sourcePath)
         return fail('sourcePath is missing');
+
+    if (!params.targetSize)
+        params.targetSize = 0;
     
     params.sourcePath = params.sourcePath.replace('file://', '');
 	exec(success,fail, "SpectrumManager", "compressImage", [params]);
