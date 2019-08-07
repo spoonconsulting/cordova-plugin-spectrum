@@ -52,7 +52,7 @@
     CDVFile *filePlugin = [self.commandDelegate getCommandInstance:@"File"];
     CDVFilesystemURL *url = [CDVFilesystemURL fileSystemURLWithString:path];
     NSString* cdvFilePath = [filePlugin filesystemPathForURL:url];
-    return cdvFilePath? cdvFilePath : [path stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+    return cdvFilePath? cdvFilePath : path;
 }
 -(void)returnErrorResult:(CDVInvokedUrlCommand *) command withMsg: (NSString*)msg{
     NSString* sourcePath = ((NSDictionary*)command.arguments[0])[@"sourcePath"];

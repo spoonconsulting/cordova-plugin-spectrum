@@ -70,7 +70,7 @@ public class SpectrumManager extends CordovaPlugin {
             public void run() {
                 try {
                     Uri tmpSrc = Uri.parse(path);
-                    final Uri sourceUri = webView.getResourceApi().remapUri(tmpSrc);
+                    final Uri sourceUri = tmpSrc.getScheme() != null ? webView.getResourceApi().remapUri(tmpSrc): tmpSrc;
                     final String sourcePath = sourceUri.toString();
 
                     File file = new File(sourcePath);
