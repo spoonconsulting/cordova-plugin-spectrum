@@ -1,8 +1,10 @@
 package com.spoon.spectrum;
 
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+
 
 import com.facebook.spectrum.DefaultPlugins;
 import com.facebook.spectrum.EncodedImageSink;
@@ -23,16 +25,12 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 
 import static com.facebook.spectrum.image.EncodedImageFormat.JPEG;
@@ -84,14 +82,23 @@ public class SpectrumManager extends CordovaPlugin {
 
                     final InputStream inputStream = new FileInputStream(sourcePath);
                     final TranscodeOptions transcodeOptions;
+                    int width;
+                    int height;
                     if (size > 0) {
-                        transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).resize(ResizeRequirement.Mode.EXACT_OR_SMALLER, new ImageSize(size, size)).build();
+                        width = size;
+                        height = size;
                     } else {
-                        transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).build();
+                        //grab the image size (without passing a resize params, the compression is not being done!)
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeFile(sourcePath, options);
+                        width = options.outWidth;
+                        height = options.outHeight;
                     }
+                    transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).resize(ResizeRequirement.Mode.EXACT_OR_SMALLER, new ImageSize(width, height)).build();
 
                     String fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
-                    String destinationFileName = UUID.randomUUID().toString() + fileExtension;
+                    String destinationFileName = UUID.randomUUID().toString() + "_compressed."+ fileExtension;
                     String destinationPath = sourcePath.replace(file.getName(), destinationFileName);
 
                     final SpectrumResult result = mSpectrum.transcode(
@@ -99,11 +106,13 @@ public class SpectrumManager extends CordovaPlugin {
                             EncodedImageSink.from(destinationPath),
                             transcodeOptions,
                             "com.spectrum-plugin");
+
                     if (result.isSuccessful()) {
                         if (!file.delete()) {
                             callbackContext.error("could not delete source image");
                             return;
                         }
+
                         if (!new File(destinationPath).renameTo(file)) {
                             callbackContext.error("could not rename image");
                             return;
@@ -123,5 +132,6 @@ public class SpectrumManager extends CordovaPlugin {
             }
         });
     }
+
 
 }
