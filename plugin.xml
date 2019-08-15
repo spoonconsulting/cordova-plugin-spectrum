@@ -42,6 +42,8 @@
 		<framework src="SpectrumCore/Base" type="podspec" spec="~> 1.1.0" /> 
         <framework src="SpectrumKit" type="podspec" git="https://github.com/facebookincubator/spectrum.git" />-->
         <podspec>
+         <config>
+        </config>
             <pods use-frameworks="false">
                 <pod name="SpectrumKit" path="./spectrum_core" />
             </pods>
