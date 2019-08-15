@@ -40,7 +40,7 @@
         </config-file>
 		<framework src="SpectrumKit/Base" type="podspec" spec="~> 1.1.0" />
         <framework src="SpectrumKit/Plugins/Jpeg" type="podspec" spec="~> 1.1.0" />
-        <framework src="SpectrumKit/P{lugins/Png" type="podspec" spec="~> 1.1.0" />
+        <framework src="SpectrumKit/Plugins/Png" type="podspec" spec="~> 1.1.0" />
 		<!-- <<framework src="SpectrumCore/Base" type="podspec" spec="~> 1.1.0" /> 
         <framework src="SpectrumKit" type="podspec" spec=":path => '~/spectrum_core'" />-->
         <!-- <podspec>
