@@ -1,0 +1,80 @@
+// Copyright (c) Facebook, Inc. and its affiliates.
+//
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
+
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+android {
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        buildConfigField "boolean", "IS_INTERNAL_BUILD", 'true'
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+        }
+
+        externalNativeBuild {
+            cmake {
+                arguments '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=c++_shared'
+                targets 'spectrumtest'
+            }
+        }
+    }
+
+    sourceSets {
+        main {
+            assets.srcDirs = [
+                    'src/main/java/com/facebook/spectrum/testutils/assets/jpeg',
+                    'src/main/java/com/facebook/spectrum/testutils/assets/png',
+                    'src/main/java/com/facebook/spectrum/testutils/assets/webp',
+                    'src/main/java/com/facebook/spectrum/testutils/assets/ivfav1',
+                    'src/main/java/com/facebook/spectrum/testutils/assets/gif',
+            ]
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path './CMakeLists.txt'
+        }
+    }
+
+    packagingOptions {
+        // provided by the main spectrum target
+        exclude "**/libc++_shared.so"
+        exclude "**/libspectrumcpp.so"
+        exclude "**/libspectrumfbjni.so"
+        exclude "**/libspectrum.so"
+    }
+}
+
+dependencies {
+    compileOnly deps.jsr305
+    implementation deps.soloader
+    implementation project(':android')
+    implementation deps.festAssert
+    implementation deps.junit
+    implementation deps.supportTestRunner
+    implementation deps.supportTestRules
+    implementation 'androidx.exifinterface:exifinterface:1.1.0-beta01'
+
+    androidTestImplementation deps.festAssert
+    androidTestImplementation deps.junit
+    androidTestImplementation deps.robolectric
+    androidTestImplementation deps.supportTestRunner
+    androidTestImplementation deps.supportTestRules
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+artifacts.add('archives', sourcesJar)

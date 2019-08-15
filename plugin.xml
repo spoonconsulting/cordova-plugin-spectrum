@@ -39,8 +39,14 @@
             </feature>
         </config-file>
 		<!-- <framework src="SpectrumKit/Base" type="podspec" spec="~> 1.1.0" />
-		<framework src="SpectrumCore/Base" type="podspec" spec="~> 1.1.0" /> -->
-        <framework src="SpectrumKit" type="podspec" git="https://github.com/facebookincubator/spectrum.git" />
+		<framework src="SpectrumCore/Base" type="podspec" spec="~> 1.1.0" /> 
+        <framework src="SpectrumKit" type="podspec" git="https://github.com/facebookincubator/spectrum.git" />-->
+        <podspec>
+            <pods use-frameworks="false">
+                <pod name="SpectrumKit" path="./spectrum_core" />
+            </pods>
+        </podspec>
+
         <header-file src="src/ios/SpectrumManager.h" />
         <source-file src="src/ios/SpectrumManager.m" />
 	</platform>
