@@ -40,7 +40,7 @@
         </config-file>
 		<!-- <framework src="SpectrumKit/Base" type="podspec" spec="~> 1.1.0" />
 		<framework src="SpectrumCore/Base" type="podspec" spec="~> 1.1.0" /> -->
-        <framework src="SpectrumKit" type="podspec" spec=":path => './spectrum_core'" />
+        <framework src="SpectrumKit" type="podspec" spec=":path => '~/spectrum_core'" />
         <!-- <podspec>
          <config>
         </config>
