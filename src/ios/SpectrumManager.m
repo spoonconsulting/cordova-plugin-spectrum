@@ -76,10 +76,16 @@
         transformations = [FSPTransformations new];
         transformations.resizeRequirement = [[FSPResizeRequirement alloc] initWithMode:FSPResizeRequirementModeExactOrSmaller targetSize:targetSize];
     }
-    
-    NSData* data = UIImageJPEGRepresentation(image, 1.0);
-    CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)data, NULL);
-    NSDictionary *metadata = (NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL));
+    /*
+     Spectrum is crashing when parsing GPS timestamp exif
+     it is expecting it to be a number instead of time string
+     As work-around, reset the timestamp to zero
+     */
+    CGImageSourceRef source = CGImageSourceCreateWithURL((CFURLRef)[NSURL fileURLWithPath:path], NULL);
+    NSMutableDictionary *metadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
+    NSMutableDictionary *gpsMetadata =  [metadata[(NSString*)kCGImagePropertyGPSDictionary] mutableCopy];
+    gpsMetadata[(NSString*)kCGImagePropertyGPSTimeStamp] = @0;
+    metadata[(NSString*)kCGImagePropertyGPSDictionary] = gpsMetadata;
     FSPEncodeOptions *options =
     [FSPEncodeOptions encodeOptionsWithEncodeRequirement:encodeRequirement
                                          transformations:transformations
