@@ -77,10 +77,13 @@
         transformations.resizeRequirement = [[FSPResizeRequirement alloc] initWithMode:FSPResizeRequirementModeExactOrSmaller targetSize:targetSize];
     }
     
+    NSData* data = UIImageJPEGRepresentation(image, 1.0);
+    CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)data, NULL);
+    NSDictionary *metadata = (NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL));
     FSPEncodeOptions *options =
     [FSPEncodeOptions encodeOptionsWithEncodeRequirement:encodeRequirement
                                          transformations:transformations
-                                                metadata:[FSPImageMetadata imageMetadataFromImage: image]
+                                                metadata:[FSPImageMetadata imageMetadataWithDictionary:metadata]
                                            configuration:nil
                      outputPixelSpecificationRequirement:nil];
     

@@ -41,16 +41,6 @@
 		<framework src="SpectrumKit/Base" type="podspec" spec="~> 1.1.0" />
         <framework src="SpectrumKit/Plugins/Jpeg" type="podspec" spec="~> 1.1.0" />
         <framework src="SpectrumKit/Plugins/Png" type="podspec" spec="~> 1.1.0" />
-		<!-- <<framework src="SpectrumCore/Base" type="podspec" spec="~> 1.1.0" /> 
-        <framework src="SpectrumKit" type="podspec" spec=":path => '~/spectrum_core'" />-->
-        <!-- <podspec>
-         <config>
-        </config>
-            <pods use-frameworks="false">
-                <pod name="SpectrumKit" path="./spectrum_core" />
-            </pods>
-        </podspec> -->
-
         <header-file src="src/ios/SpectrumManager.h" />
         <source-file src="src/ios/SpectrumManager.m" />
 	</platform>
