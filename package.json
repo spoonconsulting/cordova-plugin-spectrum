@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-spectrum",
-  "version": "1.1.0",
+  "version": "0.0.1",
   "description": "Cordova plugin for Spectrum image transcoding library",
   "cordova": {
     "id": "cordova-plugin-spectrum",
@@ -22,7 +22,12 @@
     "cordova-android",
     "cordova-ios"
   ],
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint **/*.js",
+    "cordova-paramedic": "cordova-paramedic",
+    "test:android": "cordova-paramedic --platform android --plugin . --timeout 10000 --outputDir /tmp/test_results",
+    "test:ios": "cordova-paramedic --platform ios --plugin . --verbose"
+  },
   "dependencies": {},
   "author": "Spoon Consulting",
   "contributors": [
@@ -35,11 +40,10 @@
   ],
   "license": "Apache-2.0",
   "engines": {
-    "cordovaDependencies": {
-      "2.0.0": {
-        "cordova": ">100"
-      }
-    }
+    "cordova": ">=8.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "cordova-paramedic": "git+https://github.com/apache/cordova-paramedic.git",
+    "eslint": "^3.18.0"
+  }
 }

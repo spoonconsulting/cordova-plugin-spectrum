@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin 
+	xmlns="http://apache.org/cordova/ns/plugins/1.0" 
+	xmlns:android="http://schemas.android.com/apk/res/android" 
+	id="cordova-plugin-spectrum-tests"
+    version="0.0.1">
+    
+    <name>cordova-plugin-spectrum tests</name>
+    <description>Cordova plugin for Spectrum image transcoding library</description>
+    <license>Apache 2.0</license>
+    <repo>https://github.com/spoonconsulting/cordova-plugin-spectrum.git</repo>
+     <js-module src="tests.js" name="tests"></js-module>
+</plugin>

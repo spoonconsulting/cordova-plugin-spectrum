@@ -1,0 +1,14 @@
+{
+  "name": "tests",
+  "version": "0.0.1",
+  "description": "tests for cordova-plugin-spectrum",
+  "cordova": {
+    "id": "cordova-plugin-spectrum-tests",
+    "platforms": []
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "Spoon Consulting",
+  "license": "Apache-2.0"
+}

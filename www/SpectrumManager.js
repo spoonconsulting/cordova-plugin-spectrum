@@ -5,11 +5,11 @@ module.exports = {
 };
 
 function compressImage (params, success, fail) {
-    if (!params) 
-        return fail('missing options');
+    if (!params)
+        return fail(new Error('missing options'));
 
     if (!params.sourcePath)
-        return fail('sourcePath is missing');
+        return fail(new Error('sourcePath is missing'));
 
     if (!params.targetSize)
         params.targetSize = 0;
