@@ -1,5 +1,49 @@
 exports.defineAutoTests = () => {
   describe("Spectrum", () => {
+    var sampleFile = 'tree.jpg';
+
+    function copyFileToDataDirectory(fileName) {
+      return new Promise(function (resolve, reject) {
+        console.log("Copying :" + fileName + ' ' + cordova.file.applicationDirectory);
+        window.resolveLocalFileSystemURL(cordova.file.applicationDirectory + fileName, function (fileEntry) {
+          window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (directory) {
+            console.log('copy to ', directory.nativeURL);
+            fileEntry.copyTo(directory, fileName, function () {
+                resolve((cordova.file.dataDirectory + fileName));
+              },
+              function (err) {
+                console.log(err);
+                reject(err);
+              });
+          }, reject);
+        }, reject);
+      });
+    }
+
+    function getFileSize(imageUri) {
+      return new Promise(function (resolve, reject) {
+        window.resolveLocalFileSystemURI(imageUri,
+          function (fileEntry) {
+            fileEntry.file(function (fileObj) {
+                resolve(fileObj.size / (1024 * 1024));
+              },
+              reject);
+          }, reject);
+      });
+    }
+
+    function deleteFile(fileName) {
+      return new Promise(function (resolve, reject) {
+        window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (dir) {
+          dir.getFile(fileName, {
+            create: false
+          }, function (fileEntry) {
+            fileEntry.remove(resolve, reject, reject);
+          });
+        }, reject);
+      });
+    }
+
     it("exposes SpectrumManager globally", () => {
       expect(SpectrumManager).toBeDefined();
     });
@@ -32,5 +76,22 @@ exports.defineAutoTests = () => {
         done();
       });
     });
+
+    it("compresses an image", (done) => {
+      copyFileToDataDirectory(sampleFile).then(path => {
+        getFileSize(path).then(originalSize => {
+          SpectrumManager.compressImage({
+            sourcePath: path
+          }, () => {
+            getFileSize(path).then(newSize => {
+              expect(newSize).toBeGreaterThan(0);
+              expect(newSize).toBeLessThan(originalSize);
+              deleteFile(sampleFile).then(done);
+            })
+          }, err => {});
+        });
+      });
+    });
+
   });
 };
