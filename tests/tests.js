@@ -1,7 +1,5 @@
 exports.defineAutoTests = () => {
   describe("Spectrum", () => {
-    var sampleFile = 'tree.jpg';
-
     function copyFileToDataDirectory(fileName) {
       return new Promise(function (resolve, reject) {
         console.log("Copying :" + fileName + ' ' + cordova.file.applicationDirectory);
@@ -78,6 +76,7 @@ exports.defineAutoTests = () => {
     });
 
     it("compresses an image", (done) => {
+      var sampleFile = 'tree.jpg';
       copyFileToDataDirectory(sampleFile).then(path => {
         getFileSize(path).then(originalSize => {
           SpectrumManager.compressImage({
