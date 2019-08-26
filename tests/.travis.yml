@@ -1,0 +1,25 @@
+sudo: false
+matrix:
+  include:
+    - os: osx
+      language: objective-c
+    - os: linux
+      jdk: oraclejdk1.8
+      language: android
+android:
+  components:
+    - tools
+    - platform-tools
+    - tools
+    - build-tools-25.0.2
+    - android-25
+    - sys-img-armeabi-v7a-android-N
+  licenses:
+    - 'android-sdk-preview-license-.+'
+    - 'android-sdk-license-.+'
+    - 'google-gdk-license-.+'
+script:
+  - nvm install 6.10.2
+  - nvm use 6.10.2
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm use system; fi
+  - /bin/bash tests/travis.sh

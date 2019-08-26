@@ -14,4 +14,7 @@
      <platform name="android">
         <resource-file src="tree.jpg" target="assets/tree.jpg" />
      </platform>
+      <platform name="ios">
+        <resource-file src="tree.jpg" target="Resources/tree.jpg" />
+     </platform>
 </plugin>
