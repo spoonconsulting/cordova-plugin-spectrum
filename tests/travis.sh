@@ -6,7 +6,7 @@ npm install -g cordova
 npm install
 
 # lint
-# npm run lint
+npm run lint
 
 # run tests appropriate for platform
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then

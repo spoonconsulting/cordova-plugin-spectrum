@@ -23,7 +23,7 @@
     "cordova-ios"
   ],
   "scripts": {
-    "lint": "eslint **/*.js",
+    "lint": "npx standard tests/*.js",
     "cordova-paramedic": "cordova-paramedic",
     "test:android": "cordova-paramedic --platform android --plugin . --outputDir /tmp/test_results",
     "test:ios": "cordova-paramedic --platform ios --plugin . --verbose --args=--verbose "
@@ -44,6 +44,9 @@
   },
   "devDependencies": {
     "cordova-paramedic": "git+https://github.com/apache/cordova-paramedic.git",
-    "eslint": "^3.18.0"
+    "standard": "^14.0.2"
+  },
+  "standard": {
+    "env": [ "mocha", "commonjs", "jasmine" ]
   }
 }
