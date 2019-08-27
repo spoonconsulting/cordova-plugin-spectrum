@@ -16,7 +16,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 fi
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     cat tests/tests.js
-    echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+    echo no | android create avd --force -n test -t android-28 --abi armeabi-v7a
     emulator -avd test -no-audio -no-window &
     android-wait-for-emulator
     npm run test:android

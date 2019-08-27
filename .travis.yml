@@ -18,6 +18,7 @@ android:
     - android-28
     - sys-img-armeabi-v7a-android-N
     - sys-img-armeabi-v7a-android-22
+    - sys-img-armeabi-v7a-android-28
   licenses:
     - 'android-sdk-preview-license-.+'
     - 'android-sdk-license-.+'
