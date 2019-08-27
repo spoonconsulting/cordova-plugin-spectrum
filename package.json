@@ -25,7 +25,7 @@
   "scripts": {
     "lint": "npx standard tests/tests.js",
     "cordova-paramedic": "cordova-paramedic",
-    "test:android": "cordova-paramedic --platform android --plugin . --verbose",
+    "test:android": "cordova-paramedic --platform android --plugin .",
     "test:ios": "cordova-paramedic --platform ios --plugin . --verbose --args=--verbose "
   },
   "dependencies": {},
