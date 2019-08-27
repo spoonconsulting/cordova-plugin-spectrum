@@ -2,7 +2,7 @@
 set -o nounset
 set -o errexit
 
-npm install -g cordova
+npm install -g cordova npx
 npm install
 
 # lint
