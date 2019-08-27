@@ -4,6 +4,7 @@
 
 exports.defineAutoTests = function () {
   describe('Spectrum', function () {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000
     function copyFileToDataDirectory (fileName) {
       return new Promise(function (resolve, reject) {
         console.log('Copying :' + fileName + ' ' + cordova.file.applicationDirectory)
