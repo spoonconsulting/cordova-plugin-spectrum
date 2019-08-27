@@ -10,8 +10,6 @@ matrix:
     - os: linux
       jdk: oraclejdk8
       language: android
-      before_install:
-        - export PATH=/usr/local/android-sdk/build-tools/28.0.3/:${PATH}
 android:
   components:
     - tools
@@ -20,7 +18,6 @@ android:
     - build-tools-28.0.3
     - android-22
     - android-28
-    - sys-img-armeabi-v7a-android-N
     - sys-img-armeabi-v7a-android-22
   licenses:
     - 'android-sdk-preview-license-.+'
