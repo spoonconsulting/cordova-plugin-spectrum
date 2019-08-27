@@ -1,5 +1,6 @@
 /* global cordova */
 /* global SpectrumManager */
+/* global CordovaExif */
 exports.defineAutoTests = () => {
   describe('Spectrum', () => {
     function copyFileToDataDirectory (fileName) {
@@ -90,6 +91,18 @@ exports.defineAutoTests = () => {
               deleteFile(sampleFile).then(done)
             })
           }, err => console.err(err))
+        })
+      })
+    })
+
+    it('preserves exif on compressed image', (done) => {
+      var sampleFile = 'tree.jpg'
+      copyFileToDataDirectory(sampleFile).then(path => {
+        CordovaExif.readData(path, function (exif) {
+          expect(Object.keys(exif).length).toBeGreaterThan(0)
+          expect(exif.Make).toBe('google')
+          expect(exif.ShutterSpeedValue).toBe(11.22)
+          deleteFile(sampleFile).then(done)
         })
       })
     })
