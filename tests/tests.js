@@ -49,9 +49,9 @@ exports.defineAutoTests = function () {
       expect(SpectrumManager).toBeDefined()
     })
 
-    //   it('should have compressImage function', () => {
-    //     expect(SpectrumManager.compressImage).toBeDefined()
-    //   })
+    it('should have compressImage function', () => {
+      expect(SpectrumManager.compressImage).toBeDefined()
+    })
 
     //   it('returns an error if no argument is given', (done) => {
     //     SpectrumManager.compressImage(null, () => {}, err => {
