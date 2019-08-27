@@ -96,16 +96,16 @@ exports.defineAutoTests = function () {
           )
         })
       })
+    })
 
-      it('preserves exif on compressed image', function (done) {
-        var sampleFile = 'tree.jpg'
-        copyFileToDataDirectory(sampleFile).then(function (path) {
-          CordovaExif.readData(path, function (exif) {
-            expect(Object.keys(exif).length).toBeGreaterThan(0)
-            expect(exif.Make).toBe('google')
-            expect(exif.ShutterSpeedValue).toBe(11.22)
-            deleteFile(sampleFile).then(done)
-          })
+    it('preserves exif on compressed image', function (done) {
+      var sampleFile = 'tree.jpg'
+      copyFileToDataDirectory(sampleFile).then(function (path) {
+        CordovaExif.readData(path, function (exif) {
+          expect(Object.keys(exif).length).toBeGreaterThan(0)
+          expect(exif.Make).toBe('google')
+          expect(exif.ShutterSpeedValue).toBe(11.22)
+          deleteFile(sampleFile).then(done)
         })
       })
     })

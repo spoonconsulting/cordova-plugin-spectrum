@@ -26,7 +26,7 @@
     "lint": "npx standard tests/tests.js",
     "cordova-paramedic": "cordova-paramedic",
     "test:android": "cordova-paramedic --platform android --plugin . --cleanUpAfterRun --outputDir ~/test_results",
-    "test:ios": "cordova-paramedic --platform ios --plugin . --verbose --cleanUpAfterRun --outputDir ~/test_results"
+    "test:ios": "cordova-paramedic --platform ios --plugin . --cleanUpAfterRun --outputDir ~/test_results"
   },
   "dependencies": {},
   "author": "Spoon Consulting",
@@ -47,6 +47,10 @@
     "standard": "^14.0.2"
   },
   "standard": {
-    "env": [ "mocha", "commonjs", "jasmine" ]
+    "env": [
+      "mocha",
+      "commonjs",
+      "jasmine"
+    ]
   }
 }
