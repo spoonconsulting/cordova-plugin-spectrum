@@ -7,7 +7,7 @@ npm install
 
 # lint
 npm run lint
-
+mkdir ~/test_results
 # run tests appropriate for platform
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     gem install cocoapods

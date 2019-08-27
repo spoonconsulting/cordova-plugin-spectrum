@@ -1,6 +1,7 @@
 /* global cordova */
 /* global SpectrumManager */
 /* global CordovaExif */
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000
 exports.defineAutoTests = function () {
   describe('Spectrum', function () {
     function copyFileToDataDirectory (fileName) {
