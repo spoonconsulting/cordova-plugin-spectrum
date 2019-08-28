@@ -141,13 +141,12 @@ exports.defineAutoTests = function () {
       var sampleFile = 'tree.jpg'
       copyFileToDataDirectory(sampleFile).then(function (path) {
         getImageDimensions(path).then(function (originalDimension) {
-          console.log('going to compress')
           SpectrumManager.compressImage({
             sourcePath: path
           }, function () {
-            console.log('image compressed')
             getImageDimensions(path).then(function (resizedDimension) {
-              expect(resizedDimension).toBe(originalDimension)
+              expect(resizedDimension.width).toBe(originalDimension.width)
+              expect(resizedDimension.height).toBe(originalDimension.height)
               deleteFile(sampleFile).then(done)
             })
           }, function (err) {
