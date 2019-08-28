@@ -28,8 +28,9 @@ cordova plugin rm cordova-plugin-spectrum
 
 Compresses the image and overwrites by the new one. You need to ensure that the file is in writable path.
 The following properties are available:
+
 Property | Comment
------ | -------
+-------- | -------
 sourcePath | Path to the image
 targetSize | Resize the image to the specified size (optional)
 

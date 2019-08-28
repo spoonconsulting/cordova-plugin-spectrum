@@ -108,6 +108,5 @@ exports.defineAutoTests = function () {
         })
       })
     })
-
   })
 }
