@@ -3,7 +3,7 @@
 exports.defineAutoTests = function () {
   describe('Spectrum', function () {
     // increase the timeout since android emulators run without acceleration on Travis and are very slow
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 70000
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 80000
 
     var sampleFile = 'tree.jpg'
     var path
