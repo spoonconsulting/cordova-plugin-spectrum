@@ -1,16 +1,14 @@
-/* global cordova */
-/* global SpectrumManager */
-/* global CordovaExif */
+/* global CordovaExif, SpectrumManager, cordova, Image, FileReader */
 
 exports.defineAutoTests = function () {
   describe('Spectrum', function () {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000
+    // increase the timeout since android emulators run without acceleration on Travis and are very slow
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 70000
+
     function copyFileToDataDirectory (fileName) {
       return new Promise(function (resolve, reject) {
-        console.log('Copying :' + fileName + ' ' + cordova.file.applicationDirectory)
         window.resolveLocalFileSystemURL(cordova.file.applicationDirectory + fileName, function (fileEntry) {
           window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (directory) {
-            console.log('copy to ', directory.nativeURL)
             fileEntry.copyTo(directory, fileName, function () {
               resolve((cordova.file.dataDirectory + fileName))
             },
@@ -44,6 +42,28 @@ exports.defineAutoTests = function () {
             fileEntry.remove(resolve, reject, reject)
           })
         }, reject)
+      })
+    }
+
+    function getImageDimensions (imageURI) {
+      return new Promise(function (resolve, reject) {
+        window.resolveLocalFileSystemURL(imageURI, function (fileEntry) {
+          fileEntry.file(function (fileObject) {
+            var reader = new FileReader()
+            reader.onloadend = function (evt) {
+              var image = new Image()
+              image.onload = function (evt) {
+                image = null
+                resolve({
+                  width: this.width,
+                  height: this.height
+                })
+              }
+              image.src = evt.target.result
+            }
+            reader.readAsDataURL(fileObject)
+          }, reject)
+        })
       })
     }
 
@@ -92,8 +112,9 @@ exports.defineAutoTests = function () {
               expect(newSize).toBeLessThan(originalSize)
               deleteFile(sampleFile).then(done)
             })
-          }, function (err) { console.err(err) }
-          )
+          }, function (err) {
+            console.err(err)
+          })
         })
       })
     })
@@ -101,11 +122,37 @@ exports.defineAutoTests = function () {
     it('preserves exif on compressed image', function (done) {
       var sampleFile = 'tree.jpg'
       copyFileToDataDirectory(sampleFile).then(function (path) {
-        CordovaExif.readData(path, function (exif) {
-          expect(Object.keys(exif).length).toBeGreaterThan(0)
-          expect(exif.Make).toBe('google')
-          expect(exif.ShutterSpeedValue).toBe(11.22)
-          deleteFile(sampleFile).then(done)
+        SpectrumManager.compressImage({
+          sourcePath: path
+        }, function () {
+          CordovaExif.readData(path, function (exif) {
+            expect(Object.keys(exif).length).toBeGreaterThan(0)
+            expect(exif.Make).toBe('google')
+            expect(exif.ShutterSpeedValue).toBe(11.22)
+            deleteFile(sampleFile).then(done)
+          })
+        }, function (err) {
+          console.err(err)
+        })
+      })
+    })
+
+    it('compresses image without changing its dimesion', function (done) {
+      var sampleFile = 'tree.jpg'
+      copyFileToDataDirectory(sampleFile).then(function (path) {
+        getImageDimensions(path).then(function (originalDimension) {
+          console.log('going to compress')
+          SpectrumManager.compressImage({
+            sourcePath: path
+          }, function () {
+            console.log('image compressed')
+            getImageDimensions(path).then(function (resizedDimension) {
+              expect(resizedDimension).toBe(originalDimension)
+              deleteFile(sampleFile).then(done)
+            })
+          }, function (err) {
+            console.err(err)
+          })
         })
       })
     })

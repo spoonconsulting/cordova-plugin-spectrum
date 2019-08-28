@@ -10,19 +10,19 @@ matrix:
     - os: linux
       jdk: oraclejdk8
       language: android
-android:
-  components:
-    - tools
-    - platform-tools
-    - tools
-    - build-tools-28.0.3
-    - android-22
-    - android-28
-    - sys-img-armeabi-v7a-android-22
-  licenses:
-    - 'android-sdk-preview-license-.+'
-    - 'android-sdk-license-.+'
-    - 'google-gdk-license-.+'
+      android:
+        components:
+          - tools
+          - platform-tools
+          - tools
+          - build-tools-28.0.3
+          - android-22
+          - android-28
+          - sys-img-armeabi-v7a-android-22
+        licenses:
+          - 'android-sdk-preview-license-.+'
+          - 'android-sdk-license-.+'
+          - 'google-gdk-license-.+'
 script:
   - nvm install 10.9.0
   - nvm use 10.9.0
