@@ -32,7 +32,7 @@ The following properties are available:
 Property | Comment
 -------- | -------
 sourcePath | Path to the image
-targetSize | Resize the image to the specified size (optional)
+targetSize | Resize the image to the specified size preserving aspect ratio (optional)
 
 **Sample usage**
 

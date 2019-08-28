@@ -101,6 +101,7 @@ exports.defineAutoTests = function () {
         }, function () {
           TestUtils.getImageDimensions(path).then(function (resizedDimension) {
             expect(resizedDimension.width).toBeLessThanOrEqual(500)
+            expect(resizedDimension.height).toBeLessThanOrEqual(500)
             TestUtils.deleteFile(sampleFile).then(done)
           })
         }, function (err) {
