@@ -5,6 +5,8 @@ exports.defineAutoTests = function () {
     // increase the timeout since android emulators run without acceleration on Travis and are very slow
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 70000
 
+    var sampleFile = 'tree.jpg'
+
     it('exposes SpectrumManager globally', function () {
       expect(SpectrumManager).toBeDefined()
     })
@@ -39,7 +41,6 @@ exports.defineAutoTests = function () {
     })
 
     it('compresses an image', function (done) {
-      var sampleFile = 'tree.jpg'
       TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
         TestUtils.getFileSize(path).then(function (originalSize) {
           SpectrumManager.compressImage({
@@ -58,7 +59,6 @@ exports.defineAutoTests = function () {
     })
 
     it('preserves exif on compressed image', function (done) {
-      var sampleFile = 'tree.jpg'
       TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
         SpectrumManager.compressImage({
           sourcePath: path
@@ -75,8 +75,7 @@ exports.defineAutoTests = function () {
       })
     })
 
-    it('compresses image without changing its dimension', function (done) {
-      var sampleFile = 'tree.jpg'
+    it('compresses image without resizing if tagetSize is not specified', function (done) {
       TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
         TestUtils.getImageDimensions(path).then(function (originalDimension) {
           SpectrumManager.compressImage({
@@ -93,5 +92,22 @@ exports.defineAutoTests = function () {
         })
       })
     })
+
+    it('compresses and resizes image', function (done) {
+      TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
+        SpectrumManager.compressImage({
+          sourcePath: path,
+          targetSize: 500
+        }, function () {
+          TestUtils.getImageDimensions(path).then(function (resizedDimension) {
+            expect(resizedDimension.width).toBe(500)
+            TestUtils.deleteFile(sampleFile).then(done)
+          })
+        }, function (err) {
+          console.err(err)
+        })
+      })
+    })
+
   })
 }

@@ -22,18 +22,28 @@ To uninstall this plugin:
 cordova plugin rm cordova-plugin-spectrum
 ```
 
+**Methods**
+
+`compressImage(config, success, error)`
+
+Compresses the image and overwrites by the new one. You need to ensure that the file is in writable path.
+The following properties are available:
+Property | Comment
+----- | -------
+sourcePath | Path to the image
+targetSize | Resize the image to the specified size (optional)
+
 **Sample usage**
 
-`compressImage` takes an options object which should include the path to the image. This image will be compressed and overwritten by the new one.
-You need to ensure that the file is in writable path.
 ```javascript
-    SpectrumManager.compressImage({
-        sourcePath: path
-    }, function () {
-        console.log('compressed image availble at ', path);
-    }, function (err) {
-        console.err('could not compress image ',err)
-    })
+SpectrumManager.compressImage({
+    sourcePath: path,
+    targetSize: 300
+}, function () {
+    console.log('compressed image available at ', path);
+}, function (err) {
+    console.err('could not compress image ',err)
+})
 ```
 ## License
 Cordova-plugin-spectrum is licensed under the Apache v2 License.
