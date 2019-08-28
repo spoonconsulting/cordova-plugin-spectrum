@@ -6,13 +6,6 @@ exports.defineAutoTests = function () {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 80000
 
     var sampleFile = 'tree.jpg'
-    var path
-    beforeEach(function (done) {
-      TestUtils.copyFileToDataDirectory(sampleFile).then(function (newPath) {
-        path = newPath
-        done()
-      })
-    })
 
     it('exposes SpectrumManager globally', function () {
       expect(SpectrumManager).toBeDefined()
@@ -48,17 +41,19 @@ exports.defineAutoTests = function () {
     })
 
     it('compresses an image', function (done) {
-      TestUtils.getFileSize(path).then(function (originalSize) {
-        SpectrumManager.compressImage({
-          sourcePath: path
-        }, function () {
-          TestUtils.getFileSize(path).then(function (newSize) {
-            expect(newSize).toBeGreaterThan(0)
-            expect(newSize).toBeLessThan(originalSize)
-            TestUtils.deleteFile(sampleFile).then(done)
+      TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
+        TestUtils.getFileSize(path).then(function (originalSize) {
+          SpectrumManager.compressImage({
+            sourcePath: path
+          }, function () {
+            TestUtils.getFileSize(path).then(function (newSize) {
+              expect(newSize).toBeGreaterThan(0)
+              expect(newSize).toBeLessThan(originalSize)
+              TestUtils.deleteFile(sampleFile).then(done)
+            })
+          }, function (err) {
+            console.err(err)
           })
-        }, function (err) {
-          console.err(err)
         })
       })
     })
@@ -105,7 +100,7 @@ exports.defineAutoTests = function () {
           targetSize: 500
         }, function () {
           TestUtils.getImageDimensions(path).then(function (resizedDimension) {
-            expect(resizedDimension.width).toBeLessThanOrEqual(500)
+            expect(resizedDimension.width).toBe(500)
             TestUtils.deleteFile(sampleFile).then(done)
           })
         }, function (err) {
