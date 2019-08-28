@@ -1,7 +1,7 @@
 {
   "name": "cordova-plugin-spectrum",
   "version": "0.0.1",
-  "description": "Cordova plugin for Spectrum image transcoding library",
+  "description": "Cordova plugin for Spectrum image compression library",
   "cordova": {
     "id": "cordova-plugin-spectrum",
     "platforms": [
