@@ -66,7 +66,7 @@ exports.defineAutoTests = function () {
           CordovaExif.readData(path, function (exif) {
             expect(Object.keys(exif).length).toBeGreaterThan(0)
             expect(exif.Make).toBe('google')
-            expect(exif.ShutterSpeedValue).toBe(11.22)
+            expect(parseFloat(exif.ShutterSpeedValue.toFixed(2))).toBe(11.22)
             TestUtils.deleteFile(sampleFile).then(done)
           })
         }, function (err) {
