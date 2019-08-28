@@ -75,7 +75,7 @@ exports.defineAutoTests = function () {
       })
     })
 
-    it('compresses image without changing its dimesion', function (done) {
+    it('compresses image without changing its dimension', function (done) {
       var sampleFile = 'tree.jpg'
       TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
         TestUtils.getImageDimensions(path).then(function (originalDimension) {
