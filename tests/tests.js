@@ -60,7 +60,7 @@ exports.defineAutoTests = function () {
           TestUtils.getFileSize(path).then(function (newSize) {
             expect(newSize).toBeGreaterThan(0)
             expect(newSize).toBeLessThan(originalSize)
-            done();
+            done()
           })
         }, function (err) {
           console.err(err)
@@ -93,7 +93,7 @@ exports.defineAutoTests = function () {
           TestUtils.getImageDimensions(path).then(function (resizedDimension) {
             expect(resizedDimension.width).toBe(originalDimension.width)
             expect(resizedDimension.height).toBe(originalDimension.height)
-            done();
+            done()
           })
         }, function (err) {
           console.err(err)
@@ -108,7 +108,7 @@ exports.defineAutoTests = function () {
       }, function () {
         TestUtils.getImageDimensions(path).then(function (resizedDimension) {
           expect(resizedDimension.height).toBe(500)
-          done();
+          done()
         })
       }, function (err) {
         console.err(err)
