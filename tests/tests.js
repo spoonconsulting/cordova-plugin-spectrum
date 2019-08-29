@@ -60,6 +60,7 @@ exports.defineAutoTests = function () {
           TestUtils.getFileSize(path).then(function (newSize) {
             expect(newSize).toBeGreaterThan(0)
             expect(newSize).toBeLessThan(originalSize)
+            done();
           })
         }, function (err) {
           console.err(err)
@@ -68,16 +69,19 @@ exports.defineAutoTests = function () {
     })
 
     it('preserves exif on compressed image', function (done) {
-      SpectrumManager.compressImage({
-        sourcePath: path
-      }, function () {
-        CordovaExif.readData(path, function (exif) {
-          expect(Object.keys(exif).length).toBeGreaterThan(0)
-          expect(exif.Make).toBe('google')
-          expect(parseFloat(exif.ShutterSpeedValue.toFixed(2))).toBe(11.22)
+      CordovaExif.readData(path, function (originalExif) {
+        SpectrumManager.compressImage({
+          sourcePath: path
+        }, function () {
+          CordovaExif.readData(path, function (exif) {
+            expect(Object.keys(exif).length).toBeGreaterThan(0)
+            expect(exif.Make).toBe(originalExif.Make)
+            expect(exif.ShutterSpeedValue).toBe(originalExif.ShutterSpeedValue)
+            done()
+          })
+        }, function (err) {
+          console.err(err)
         })
-      }, function (err) {
-        console.err(err)
       })
     })
 
@@ -89,6 +93,7 @@ exports.defineAutoTests = function () {
           TestUtils.getImageDimensions(path).then(function (resizedDimension) {
             expect(resizedDimension.width).toBe(originalDimension.width)
             expect(resizedDimension.height).toBe(originalDimension.height)
+            done();
           })
         }, function (err) {
           console.err(err)
@@ -103,6 +108,7 @@ exports.defineAutoTests = function () {
       }, function () {
         TestUtils.getImageDimensions(path).then(function (resizedDimension) {
           expect(resizedDimension.height).toBe(500)
+          done();
         })
       }, function (err) {
         console.err(err)
