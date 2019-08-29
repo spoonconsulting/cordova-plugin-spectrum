@@ -74,7 +74,7 @@
     FSPTransformations *transformations;
     if (!CGSizeEqualToSize(CGSizeZero, maxSize)) {
         transformations = [FSPTransformations new];
-        transformations.resizeRequirement = [[FSPResizeRequirement alloc] initWithMode:FSPResizeRequirementModeExactOrSmaller maxSize:maxSize];
+        transformations.resizeRequirement = [[FSPResizeRequirement alloc] initWithMode:FSPResizeRequirementModeExactOrSmaller targetSize:maxSize];
     }
     /*
      Spectrum is crashing when parsing GPS timestamp exif
