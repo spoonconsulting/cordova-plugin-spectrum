@@ -11,8 +11,8 @@ function compressImage (params, success, fail) {
     if (!params.sourcePath)
         return fail(new Error('sourcePath is missing'));
 
-    if (!params.targetSize)
-        params.targetSize = 0;
+    if (!params.maxSize)
+        params.maxSize = 0;
     
     params.sourcePath = params.sourcePath.replace('file://', '');
 	exec(success,fail, "SpectrumManager", "compressImage", [params]);

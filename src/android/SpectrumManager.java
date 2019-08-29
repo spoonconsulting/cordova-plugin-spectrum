@@ -54,7 +54,7 @@ public class SpectrumManager extends CordovaPlugin {
         try {
             if (action.equals("compressImage")) {
                 JSONObject config = (JSONObject) args.get(0);
-                transcodeImage(config.getString("sourcePath"), config.getInt("targetSize"), callbackContext);
+                transcodeImage(config.getString("sourcePath"), config.getInt("maxSize"), callbackContext);
                 return true;
             }
         } catch (Exception e) {

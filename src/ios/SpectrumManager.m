@@ -11,7 +11,7 @@
 -(void)compressImage:(CDVInvokedUrlCommand*)command{
     NSDictionary* config = command.arguments[0];
     NSString* sourcePath = config[@"sourcePath"];
-    NSNumber* targetSize = config[@"targetSize"];
+    NSNumber* maxSize = config[@"maxSize"];
     
     if (!sourcePath)
         return [self returnErrorResult:command withMsg:@"missing source path"];
@@ -25,9 +25,9 @@
     NSString* currentFolderPath = [sourcePath stringByDeletingLastPathComponent];
     NSString* timestampName = [NSString stringWithFormat:@"%f.%@",[[NSDate date] timeIntervalSince1970] * 1000, [sourcePath pathExtension]];
     NSString* destinationPath = [currentFolderPath stringByAppendingPathComponent:timestampName];
-    CGSize desiredSize = !targetSize ? CGSizeZero : CGSizeMake(targetSize.intValue, targetSize.intValue);
+    CGSize desiredSize = !maxSize ? CGSizeZero : CGSizeMake(maxSize.intValue, maxSize.intValue);
     [self.commandDelegate runInBackground:^{
-        [self transcodeImageAtPath:sourcePath toPath:destinationPath targetSize:desiredSize onCompletion:^(NSError * error, NSString *finalPath) {
+        [self transcodeImageAtPath:sourcePath toPath:destinationPath maxSize:desiredSize onCompletion:^(NSError * error, NSString *finalPath) {
             if (!error){
                 NSFileManager *fileManager = [NSFileManager defaultManager];
                 if ([fileManager removeItemAtPath:sourcePath error:nil]){
@@ -59,7 +59,7 @@
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus: CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ : %@", msg, sourcePath]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
--(void)transcodeImageAtPath:(NSString*)path toPath:(NSString*)targetPath targetSize:(CGSize)targetSize onCompletion:(void (^)(NSError* error, NSString* finalPath))handler{
+-(void)transcodeImageAtPath:(NSString*)path toPath:(NSString*)targetPath maxSize:(CGSize)maxSize onCompletion:(void (^)(NSError* error, NSString* finalPath))handler{
     UIImage* image = [UIImage imageWithContentsOfFile:path];
     if (!image) {
         NSError *err = [NSError errorWithDomain:@"com.plugin-spectrum.error"
@@ -72,9 +72,9 @@
                                                  mode:FSPEncodeRequirementModeLossy
                                               quality:80];
     FSPTransformations *transformations;
-    if (!CGSizeEqualToSize(CGSizeZero, targetSize)) {
+    if (!CGSizeEqualToSize(CGSizeZero, maxSize)) {
         transformations = [FSPTransformations new];
-        transformations.resizeRequirement = [[FSPResizeRequirement alloc] initWithMode:FSPResizeRequirementModeExactOrSmaller targetSize:targetSize];
+        transformations.resizeRequirement = [[FSPResizeRequirement alloc] initWithMode:FSPResizeRequirementModeExactOrSmaller maxSize:maxSize];
     }
     /*
      Spectrum is crashing when parsing GPS timestamp exif

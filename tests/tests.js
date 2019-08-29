@@ -97,7 +97,7 @@ exports.defineAutoTests = function () {
       TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
         SpectrumManager.compressImage({
           sourcePath: path,
-          targetSize: 500
+          maxSize: 500
         }, function () {
           TestUtils.getImageDimensions(path).then(function (resizedDimension) {
             expect(resizedDimension.height).toBe(500)

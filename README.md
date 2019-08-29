@@ -32,14 +32,14 @@ The following properties are available:
 Property | Comment
 -------- | -------
 sourcePath | Path to the image
-targetSize | Resize the image to the specified size preserving aspect ratio (optional)
+maxSize | Resize the image to the specified size preserving aspect ratio (optional)
 
 **Sample usage**
 
 ```javascript
 SpectrumManager.compressImage({
     sourcePath: path,
-    targetSize: 300
+    maxSize: 300
 }, function () {
     console.log('compressed image available at ', path);
 }, function (err) {
