@@ -15,6 +15,10 @@ exports.defineAutoTests = function () {
       })
     })
 
+    afterEach(function (done) {
+      TestUtils.deleteFile(sampleFile).then(done)
+    })
+
     it('exposes SpectrumManager globally', function () {
       expect(SpectrumManager).toBeDefined()
     })
@@ -48,7 +52,7 @@ exports.defineAutoTests = function () {
       })
     })
 
-    fit('compresses an image', function (done) {
+    it('compresses an image', function (done) {
       TestUtils.getFileSize(path).then(function (originalSize) {
         SpectrumManager.compressImage({
           sourcePath: path
@@ -56,7 +60,6 @@ exports.defineAutoTests = function () {
           TestUtils.getFileSize(path).then(function (newSize) {
             expect(newSize).toBeGreaterThan(0)
             expect(newSize).toBeLessThan(originalSize)
-            TestUtils.deleteFile(sampleFile).then(done)
           })
         }, function (err) {
           console.err(err)
@@ -65,53 +68,44 @@ exports.defineAutoTests = function () {
     })
 
     it('preserves exif on compressed image', function (done) {
-      TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
-        SpectrumManager.compressImage({
-          sourcePath: path
-        }, function () {
-          CordovaExif.readData(path, function (exif) {
-            expect(Object.keys(exif).length).toBeGreaterThan(0)
-            expect(exif.Make).toBe('google')
-            expect(parseFloat(exif.ShutterSpeedValue.toFixed(2))).toBe(11.22)
-            TestUtils.deleteFile(sampleFile).then(done)
-          })
-        }, function (err) {
-          console.err(err)
+      SpectrumManager.compressImage({
+        sourcePath: path
+      }, function () {
+        CordovaExif.readData(path, function (exif) {
+          expect(Object.keys(exif).length).toBeGreaterThan(0)
+          expect(exif.Make).toBe('google')
+          expect(parseFloat(exif.ShutterSpeedValue.toFixed(2))).toBe(11.22)
         })
+      }, function (err) {
+        console.err(err)
       })
     })
 
     it('compresses image without resizing if tagetSize is not specified', function (done) {
-      TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
-        TestUtils.getImageDimensions(path).then(function (originalDimension) {
-          SpectrumManager.compressImage({
-            sourcePath: path
-          }, function () {
-            TestUtils.getImageDimensions(path).then(function (resizedDimension) {
-              expect(resizedDimension.width).toBe(originalDimension.width)
-              expect(resizedDimension.height).toBe(originalDimension.height)
-              TestUtils.deleteFile(sampleFile).then(done)
-            })
-          }, function (err) {
-            console.err(err)
+      TestUtils.getImageDimensions(path).then(function (originalDimension) {
+        SpectrumManager.compressImage({
+          sourcePath: path
+        }, function () {
+          TestUtils.getImageDimensions(path).then(function (resizedDimension) {
+            expect(resizedDimension.width).toBe(originalDimension.width)
+            expect(resizedDimension.height).toBe(originalDimension.height)
           })
+        }, function (err) {
+          console.err(err)
         })
       })
     })
 
     it('compresses and resizes image', function (done) {
-      TestUtils.copyFileToDataDirectory(sampleFile).then(function (path) {
-        SpectrumManager.compressImage({
-          sourcePath: path,
-          maxSize: 500
-        }, function () {
-          TestUtils.getImageDimensions(path).then(function (resizedDimension) {
-            expect(resizedDimension.height).toBe(500)
-            TestUtils.deleteFile(sampleFile).then(done)
-          })
-        }, function (err) {
-          console.err(err)
+      SpectrumManager.compressImage({
+        sourcePath: path,
+        maxSize: 500
+      }, function () {
+        TestUtils.getImageDimensions(path).then(function (resizedDimension) {
+          expect(resizedDimension.height).toBe(500)
         })
+      }, function (err) {
+        console.err(err)
       })
     })
   })
