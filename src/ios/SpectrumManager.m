@@ -83,6 +83,7 @@
      */
     CGImageSourceRef source = CGImageSourceCreateWithURL((CFURLRef)[NSURL fileURLWithPath:path], NULL);
     NSMutableDictionary *metadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
+    CFRelease(source);
     NSMutableDictionary *gpsMetadata =  [metadata[(NSString*)kCGImagePropertyGPSDictionary] mutableCopy];
     gpsMetadata[(NSString*)kCGImagePropertyGPSTimeStamp] = @0;
     metadata[(NSString*)kCGImagePropertyGPSDictionary] = gpsMetadata;
