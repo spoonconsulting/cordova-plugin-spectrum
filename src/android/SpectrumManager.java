@@ -94,6 +94,17 @@ public class SpectrumManager extends CordovaPlugin {
                         width = options.outWidth;
                         height = options.outHeight;
                     }
+
+                    if (width < 0 || width > ImageSize.MAX_IMAGE_SIDE_DIMENSION){
+                        callbackContext.error("invalid image width");
+                        return;
+                    }
+
+                    if (height < 0 || height > ImageSize.MAX_IMAGE_SIDE_DIMENSION){
+                        callbackContext.error("invalid image height");
+                        return;
+                    }
+
                     transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).resize(ResizeRequirement.Mode.EXACT_OR_SMALLER, new ImageSize(width, height)).build();
 
                     String fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
