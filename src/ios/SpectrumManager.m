@@ -95,9 +95,18 @@
                      outputPixelSpecificationRequirement:nil];
     
     NSError *error;
-    [spectrum encodeImage:image toFileAtURL:[NSURL fileURLWithPath:targetPath] options:options error:&error];
+    @try {
+        [spectrum encodeImage:image toFileAtURL:[NSURL fileURLWithPath:targetPath] options:options error:&error];
+    } @catch (NSException *exception) {
+        NSError *compressError = [NSError errorWithDomain:@"com.plugin-spectrum.error"
+                                           code:101
+                                       userInfo:@{
+                                                    NSLocalizedDescriptionKey: exception.reason ? exception.reason : @"Error compressing file"
+                                                }];
+        return handler(compressError, nil);
+    }
     if (error){
-        return handler(error, nil);
+        handler(error, nil);
     } else {
         handler(nil, targetPath);
     }
