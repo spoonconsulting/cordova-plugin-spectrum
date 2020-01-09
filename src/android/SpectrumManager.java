@@ -124,9 +124,9 @@ public class SpectrumManager extends CordovaPlugin {
                     }
 
                 } catch (final IOException e) {
-                    callbackContext.error("source file does not exists");
+                    callbackContext.error("Error compressing file: " + e.getMessage());
                 } catch (final SpectrumException e) {
-                    callbackContext.error("invalid image");
+                    callbackContext.error("Error compressing file: " + e.getMessage());
                 }
             }
         });
