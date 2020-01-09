@@ -10,7 +10,6 @@ import com.facebook.spectrum.DefaultPlugins;
 import com.facebook.spectrum.EncodedImageSink;
 import com.facebook.spectrum.EncodedImageSource;
 import com.facebook.spectrum.Spectrum;
-import com.facebook.spectrum.SpectrumException;
 import com.facebook.spectrum.SpectrumResult;
 import com.facebook.spectrum.SpectrumSoLoader;
 import com.facebook.spectrum.image.ImageSize;
@@ -22,7 +21,6 @@ import com.facebook.spectrum.requirements.ResizeRequirement;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
@@ -31,7 +29,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -124,14 +121,9 @@ public class SpectrumManager extends CordovaPlugin {
                         callbackContext.error("could not compress image");
                     }
 
-                } catch (IOException e) {
-                    callbackContext.error("Error compressing file: " + e.getMessage());
-                } catch (SpectrumException e) {
-                    callbackContext.error("Error compressing file: " + e.getMessage());
-                } catch (IllegalArgumentException e) {
-                    callbackContext.error("Error compressing file: invalid image");
-                }  catch (Exception e) {
-                    callbackContext.error("Error compressing file: " + e.getMessage());
+                } catch (Exception e) {
+                    callbackContext.error(e.toString());
+                    e.printStackTrace();
                 }
             }
         });
