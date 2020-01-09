@@ -58,7 +58,7 @@ public class SpectrumManager extends CordovaPlugin {
                 return true;
             }
         } catch (Exception e) {
-            callbackContext.error(e.getMessage());
+            callbackContext.error("Error compressing file: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
