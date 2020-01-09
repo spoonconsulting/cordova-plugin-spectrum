@@ -98,7 +98,7 @@
     @try {
         [spectrum encodeImage:image toFileAtURL:[NSURL fileURLWithPath:targetPath] options:options error:&error];
     } @catch (NSException *exception) {
-        NSString* message = [NSString stringWithFormat:@"Error compressing file: (%@) - %@", exception.name, exception.reason];
+        NSString* message = [NSString stringWithFormat:@"(%@) - %@", exception.name, exception.reason];
         NSError* compressError = [NSError errorWithDomain:@"com.plugin-spectrum.error"
                                            code:101
                                        userInfo:@{
