@@ -26,6 +26,7 @@ import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -57,8 +58,8 @@ public class SpectrumManager extends CordovaPlugin {
                 transcodeImage(config.getString("sourcePath"), config.getInt("maxSize"), callbackContext);
                 return true;
             }
-        } catch (Exception e) {
-            callbackContext.error("Error compressing file: " + e.getMessage());
+        } catch (JSONException e) {
+            callbackContext.error("Error reading config: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -123,14 +124,16 @@ public class SpectrumManager extends CordovaPlugin {
                         callbackContext.error("could not compress image");
                     }
 
-                } catch (final IOException e) {
+                } catch (IOException e) {
                     callbackContext.error("Error compressing file: " + e.getMessage());
-                } catch (final SpectrumException e) {
+                } catch (SpectrumException e) {
+                    callbackContext.error("Error compressing file: " + e.getMessage());
+                } catch (IllegalArgumentException e) {
+                    callbackContext.error("Error compressing file: invalid image");
+                }  catch (Exception e) {
                     callbackContext.error("Error compressing file: " + e.getMessage());
                 }
             }
         });
     }
-
-
 }
