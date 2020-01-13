@@ -106,10 +106,6 @@
                                                 }];
         return handler(compressError, nil);
     }
-    if (error){
-        handler(error, nil);
-    } else {
-        handler(nil, targetPath);
-    }
+    handler(error, error ? nil : targetPath);
 }
 @end
