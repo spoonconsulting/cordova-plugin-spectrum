@@ -54,7 +54,7 @@ public class SpectrumManager extends CordovaPlugin {
                 }
             }
         });
-        return false;
+        return true;
     }
 
     private void transcodeImage(String path, int size, CallbackContext callbackContext) {

@@ -63,7 +63,7 @@ exports.defineAutoTests = function () {
             done()
           })
         }, function (err) {
-          console.err(err)
+          console.log(err)
         })
       })
     })
@@ -80,7 +80,7 @@ exports.defineAutoTests = function () {
             done()
           })
         }, function (err) {
-          console.err(err)
+          console.log(err)
         })
       })
     })
@@ -96,7 +96,7 @@ exports.defineAutoTests = function () {
             done()
           })
         }, function (err) {
-          console.err(err)
+          console.log(err)
         })
       })
     })
@@ -111,7 +111,7 @@ exports.defineAutoTests = function () {
           done()
         })
       }, function (err) {
-        console.err(err)
+        console.log(err)
       })
     })
   })
