@@ -109,9 +109,9 @@ public class SpectrumManager extends CordovaPlugin {
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
             pluginResult.setKeepCallback(true);
             callbackContext.sendPluginResult(pluginResult);
-        } else {
-            callbackContext.error("could not compress image");
+            return;
         }
+        callbackContext.error("could not compress image");
     }
 
     private ImageSize getImageSize(String sourcePath, int defaultSize) {
