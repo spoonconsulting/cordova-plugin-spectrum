@@ -77,7 +77,7 @@ public class SpectrumManager extends CordovaPlugin {
         InputStream inputStream;
         try {
             inputStream = new FileInputStream(sourcePath);
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
             sendErrorResultForException(callbackContext, e);
             return;
         }
