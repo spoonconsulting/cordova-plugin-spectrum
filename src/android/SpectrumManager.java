@@ -38,7 +38,7 @@ import static com.facebook.spectrum.image.EncodedImageFormat.JPEG;
 public class SpectrumManager extends CordovaPlugin {
 
     private static Spectrum mSpectrum;
-    
+
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
@@ -49,12 +49,16 @@ public class SpectrumManager extends CordovaPlugin {
                         transcodeImage(config.getString("sourcePath"), config.getInt("maxSize"), callbackContext);
                     }
                 } catch (Exception e) {
-                    callbackContext.error(e.getMessage());
-                    e.printStackTrace();
+                    sendErrorResultForException(callbackContext, e);
                 }
             }
         });
         return true;
+    }
+
+    private void sendErrorResultForException(CallbackContext callbackContext, Exception exception) {
+        callbackContext.error("(" + exception.getClass().getSimpleName() + ") - " + exception.getMessage());
+        exception.printStackTrace();
     }
 
     private void transcodeImage(String path, int size, CallbackContext callbackContext) {
@@ -74,7 +78,7 @@ public class SpectrumManager extends CordovaPlugin {
         try {
             inputStream = new FileInputStream(sourcePath);
         } catch (Exception e) {
-            callbackContext.error(e.toString());
+            sendErrorResultForException(callbackContext, e);
             return;
         }
         final TranscodeOptions transcodeOptions;
@@ -90,11 +94,8 @@ public class SpectrumManager extends CordovaPlugin {
                     EncodedImageSink.from(destinationPath),
                     transcodeOptions,
                     "com.spectrum-plugin");
-        } catch (SpectrumException e) {
-            callbackContext.error(e.toString());
-            return;
-        } catch (FileNotFoundException e) {
-            callbackContext.error(e.toString());
+        } catch (SpectrumException | FileNotFoundException e) {
+            sendErrorResultForException(callbackContext, e);
             return;
         }
         if (result.isSuccessful()) {

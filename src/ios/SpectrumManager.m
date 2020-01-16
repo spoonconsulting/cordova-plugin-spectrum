@@ -13,13 +13,21 @@
         @try {
             [self startImageCompression:command];
         } @catch (NSException *exception) {
-            NSString* message = [NSString stringWithFormat:@"(%@) - %@", exception.name, exception.reason];
-            [self returnErrorResult:command withMsg:message];
+            [self returnErrorResult:command forException:exception];
         }
     }];
 }
+-(void)returnErrorResult:(CDVInvokedUrlCommand*)command forException:(NSException*)exception{
+    NSString* message = [NSString stringWithFormat:@"(%@) - %@", exception.name, exception.reason];
+    [self returnErrorResult: command withMsg:message];
+}
 
--(void)startImageCompression:(CDVInvokedUrlCommand *)command{
+-(void)returnErrorResult:(CDVInvokedUrlCommand*) command withMsg: (NSString*)msg{
+    NSString* sourcePath = ((NSDictionary*)command.arguments[0])[@"sourcePath"];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus: CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ : %@", msg, sourcePath]];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+-(void)startImageCompression:(CDVInvokedUrlCommand*)command{
     NSDictionary* config = command.arguments[0];
     NSString* sourcePath = config[@"sourcePath"];
     NSNumber* maxSize = config[@"maxSize"];
@@ -61,11 +69,7 @@
     NSString* cdvFilePath = [filePlugin filesystemPathForURL:url];
     return cdvFilePath? cdvFilePath : path;
 }
--(void)returnErrorResult:(CDVInvokedUrlCommand *) command withMsg: (NSString*)msg{
-    NSString* sourcePath = ((NSDictionary*)command.arguments[0])[@"sourcePath"];
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus: CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ : %@", msg, sourcePath]];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
+
 -(void)transcodeImageAtPath:(NSString*)path toPath:(NSString*)targetPath maxSize:(CGSize)maxSize onCompletion:(void (^)(NSError* error, NSString* finalPath))handler{
     UIImage* image = [UIImage imageWithContentsOfFile:path];
     if (!image) {
