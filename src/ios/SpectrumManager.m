@@ -27,6 +27,7 @@
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus: CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ : %@", msg, sourcePath]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
 -(void)startImageCompression:(CDVInvokedUrlCommand*)command{
     NSDictionary* config = command.arguments[0];
     NSString* sourcePath = config[@"sourcePath"];
