@@ -22,7 +22,6 @@ import com.facebook.spectrum.requirements.ResizeRequirement;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
@@ -30,7 +29,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -41,96 +40,95 @@ public class SpectrumManager extends CordovaPlugin {
     private static Spectrum mSpectrum;
 
     @Override
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    if (action.equals("compressImage")) {
+                        JSONObject config = (JSONObject) args.get(0);
+                        transcodeImage(config.getString("sourcePath"), config.getInt("maxSize"), callbackContext);
+                    }
+                } catch (Exception e) {
+                    sendErrorResultForException(callbackContext, e);
+                }
+            }
+        });
+        return true;
+    }
+
+    private void sendErrorResultForException(CallbackContext callbackContext, Exception exception) {
+        callbackContext.error("(" + exception.getClass().getSimpleName() + ") - " + exception.getMessage());
+        exception.printStackTrace();
+    }
+
+    private void transcodeImage(String path, int size, CallbackContext callbackContext) {
         if (mSpectrum == null) {
             SpectrumSoLoader.init(cordova.getActivity());
             mSpectrum = Spectrum.make(new SpectrumLogcatLogger(Log.INFO), DefaultPlugins.get());
         }
-    }
-
-    @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
-        try {
-            if (action.equals("compressImage")) {
-                JSONObject config = (JSONObject) args.get(0);
-                transcodeImage(config.getString("sourcePath"), config.getInt("maxSize"), callbackContext);
-                return true;
-            }
-        } catch (Exception e) {
-            callbackContext.error(e.getMessage());
-            e.printStackTrace();
+        Uri tmpSrc = Uri.parse(path);
+        final Uri sourceUri = tmpSrc.getScheme() != null ? webView.getResourceApi().remapUri(tmpSrc) : tmpSrc;
+        final String sourcePath = sourceUri.toString();
+        File file = new File(sourcePath);
+        if (!file.exists()) {
+            callbackContext.error("source file does not exists");
+            return;
         }
-        return false;
-    }
-
-    private void transcodeImage(String path, int size, CallbackContext callbackContext) {
-
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-                    Uri tmpSrc = Uri.parse(path);
-                    final Uri sourceUri = tmpSrc.getScheme() != null ? webView.getResourceApi().remapUri(tmpSrc): tmpSrc;
-                    final String sourcePath = sourceUri.toString();
-
-                    File file = new File(sourcePath);
-                    if (!file.exists()) {
-                        callbackContext.error("source file does not exists");
-                        return;
-                    }
-
-                    final InputStream inputStream = new FileInputStream(sourcePath);
-                    final TranscodeOptions transcodeOptions;
-                    int width;
-                    int height;
-                    if (size > 0) {
-                        width = size;
-                        height = size;
-                    } else {
-                        //grab the image size (without passing a resize params, the compression is not being done!)
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inJustDecodeBounds = true;
-                        BitmapFactory.decodeFile(sourcePath, options);
-                        width = options.outWidth;
-                        height = options.outHeight;
-                    }
-                    transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).resize(ResizeRequirement.Mode.EXACT_OR_SMALLER, new ImageSize(width, height)).build();
-
-                    String fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
-                    String destinationFileName = UUID.randomUUID().toString() + "_compressed." + fileExtension;
-                    String destinationPath = sourcePath.replace(file.getName(), destinationFileName);
-
-                    final SpectrumResult result = mSpectrum.transcode(
-                            EncodedImageSource.from(inputStream),
-                            EncodedImageSink.from(destinationPath),
-                            transcodeOptions,
-                            "com.spectrum-plugin");
-
-                    if (result.isSuccessful()) {
-                        if (!file.delete()) {
-                            callbackContext.error("could not delete source image");
-                            return;
-                        }
-
-                        if (!new File(destinationPath).renameTo(file)) {
-                            callbackContext.error("could not rename image");
-                            return;
-                        }
-                        PluginResult plugingResult = new PluginResult(PluginResult.Status.OK);
-                        plugingResult.setKeepCallback(true);
-                        callbackContext.sendPluginResult(plugingResult);
-                    } else {
-                        callbackContext.error("could not compress image");
-                    }
-
-                } catch (final IOException e) {
-                    callbackContext.error("source file does not exists");
-                } catch (final SpectrumException e) {
-                    callbackContext.error("invalid image");
-                }
+        InputStream inputStream;
+        try {
+            inputStream = new FileInputStream(sourcePath);
+        } catch (FileNotFoundException e) {
+            sendErrorResultForException(callbackContext, e);
+            return;
+        }
+        final TranscodeOptions transcodeOptions;
+        ImageSize targetSize = getImageSize(path, size);
+        transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).resize(ResizeRequirement.Mode.EXACT_OR_SMALLER, targetSize).build();
+        String fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
+        String destinationFileName = UUID.randomUUID().toString() + "_compressed." + fileExtension;
+        String destinationPath = sourcePath.replace(file.getName(), destinationFileName);
+        SpectrumResult result;
+        try {
+            result = mSpectrum.transcode(
+                    EncodedImageSource.from(inputStream),
+                    EncodedImageSink.from(destinationPath),
+                    transcodeOptions,
+                    "com.spectrum-plugin");
+        } catch (SpectrumException | FileNotFoundException e) {
+            sendErrorResultForException(callbackContext, e);
+            return;
+        }
+        if (result.isSuccessful()) {
+            if (!file.delete()) {
+                callbackContext.error("could not delete source image");
+                return;
             }
-        });
+            if (!new File(destinationPath).renameTo(file)) {
+                callbackContext.error("could not rename image");
+                return;
+            }
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+            pluginResult.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginResult);
+            return;
+        }
+        callbackContext.error("could not compress image");
     }
 
-
+    private ImageSize getImageSize(String sourcePath, int defaultSize) {
+        int width;
+        int height;
+        if (defaultSize > 0) {
+            width = defaultSize;
+            height = defaultSize;
+        } else {
+            //grab the image size (without passing a resize params, the compression is not being done!)
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(sourcePath, options);
+            width = options.outWidth;
+            height = options.outHeight;
+        }
+        return new ImageSize(width, height);
+    }
 }
