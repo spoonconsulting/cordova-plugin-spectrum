@@ -91,6 +91,7 @@
     /*
      Spectrum is crashing when parsing GPS timestamp exif
      it is expecting it to be a number instead of time string
+     https://github.com/facebookincubator/spectrum/issues/188
      As work-around, reset the timestamp to zero
      */
     CGImageSourceRef source = CGImageSourceCreateWithURL((CFURLRef)[NSURL fileURLWithPath:path], NULL);
