@@ -5,42 +5,45 @@
 	id="cordova-plugin-spectrum"
     version="0.0.1">
     
-    <name>cordova-plugin-spectrum</name>
-    <description>Cordova plugin for Spectrum image transcoding library</description>
-    <author>Spoon Consulting</author>
-    <keywords>cordova, plugin, spectrum, transcoding, image</keywords>
-    <license>Apache 2.0</license>
-    <repo>https://github.com/spoonconsulting/cordova-plugin-spectrum.git</repo>
-    <js-module src="www/SpectrumManager.js" name="SpectrumManager">
-        <clobbers target="SpectrumManager" />
-    </js-module>
-   
-    <!-- android -->
-    <platform name="android">
-        <framework src="com.facebook.spectrum:spectrum-default:1.1.0" />
-        <framework src="com.facebook.spectrum:spectrum-core:1.1.0" />
-        <framework src="com.facebook.spectrum:spectrum-jpeg:1.1.0" />
-        <framework src="com.facebook.spectrum:spectrum-png:1.1.0" />
-        <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="SpectrumManager">
-                <param name="android-package" value="com.spoon.spectrum.SpectrumManager" />
-            </feature>
-        </config-file>
-        <source-file src="src/android/SpectrumManager.java" target-dir="src/com/spoon/spectrum" />
-    </platform>
+  <name>cordova-plugin-spectrum</name>
+  <description>Cordova plugin for Spectrum image transcoding library</description>
+  <author>Spoon Consulting</author>
+  <keywords>cordova, plugin, spectrum, transcoding, image</keywords>
+  <license>Apache 2.0</license>
+  <repo>https://github.com/spoonconsulting/cordova-plugin-spectrum.git</repo>
+  <js-module src="www/SpectrumManager.js" name="SpectrumManager">
+      <clobbers target="SpectrumManager" />
+  </js-module>
+  
+  <!-- android -->
+  <platform name="android">
+    <framework src="com.facebook.spectrum:spectrum-default:1.1.0" />
+    <framework src="com.facebook.spectrum:spectrum-core:1.1.0" />
+    <framework src="com.facebook.spectrum:spectrum-jpeg:1.1.0" />
+    <framework src="com.facebook.spectrum:spectrum-png:1.1.0" />
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="SpectrumManager">
+          <param name="android-package" value="com.spoon.spectrum.SpectrumManager" />
+      </feature>
+    </config-file>
+    <source-file src="src/android/SpectrumManager.java" target-dir="src/com/spoon/spectrum" />
+  </platform>
 	
 	<!-- ios -->
 	<platform name="ios">
-        <config-file target="config.xml" parent="/*">
-            <feature name="SpectrumManager">
-                <param name="ios-package" value="SpectrumManager" />
-            </feature>
-        </config-file>
-		<framework src="SpectrumKit/Base" type="podspec" spec="~> 1.1.0" />
-        <framework src="SpectrumKit/Plugins/Jpeg" type="podspec" spec="~> 1.1.0" />
-        <framework src="SpectrumKit/Plugins/Png" type="podspec" spec="~> 1.1.0" />
-        <header-file src="src/ios/SpectrumManager.h" />
-        <source-file src="src/ios/SpectrumManager.m" />
+    <config-file target="config.xml" parent="/*">
+      <feature name="SpectrumManager">
+        <param name="ios-package" value="SpectrumManager" />
+      </feature>
+    </config-file>
+		<podspec>
+      <pods use-frameworks="true">
+        <pod name="SpectrumKit/Base" spec="~> 1.1.0" />
+        <pod name="SpectrumKit/Plugins/Jpeg" spec="~> 1.1.0" />
+        <pod name="SpectrumKit/Plugins/Png" spec="~> 1.1.0" />
+      </pods>
+    </podspec>
+    <header-file src="src/ios/SpectrumManager.h" />
+    <source-file src="src/ios/SpectrumManager.m" />
 	</platform>
-	
 </plugin>
