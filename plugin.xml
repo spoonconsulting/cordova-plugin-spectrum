@@ -36,18 +36,17 @@
                 <param name="ios-package" value="SpectrumManager" />
             </feature>
         </config-file>
-	<podspec>
+        <podspec>
             <config>
                 <source url="https://cdn.cocoapods.org/"/>
             </config>
-            <pods use-frameworks="true">
+            <pods>
                 <pod name="SpectrumKit/Base" spec="~> 1.2.0" />
-          	<pod name="SpectrumKit/Plugins/Jpeg" spec="~> 1.2.0" />
-          	<pod name="SpectrumKit/Plugins/Png" spec="~> 1.2.0" />
+                <pod name="SpectrumKit/Plugins/Jpeg" spec="~> 1.2.0" />
+                <pod name="SpectrumKit/Plugins/Png" spec="~> 1.2.0" />
             </pods>
         </podspec>
         <header-file src="src/ios/SpectrumManager.h" />
         <source-file src="src/ios/SpectrumManager.m" />
 	</platform>
-	
 </plugin>
