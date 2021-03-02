@@ -1,9 +1,9 @@
 {
   "name": "@spoonconsulting/cordova-plugin-spectrum",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cordova plugin for Spectrum image compression library",
   "cordova": {
-    "id": "cordova-plugin-spectrum",
+    "id": "@spoonconsulting/cordova-plugin-spectrum",
     "platforms": [
       "android",
       "ios"
