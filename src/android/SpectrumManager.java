@@ -71,12 +71,10 @@ public class SpectrumManager extends CordovaPlugin {
             bitmap = Bitmap.createScaledBitmap(bitmap, targetSize.width, targetSize.height, true);
         }
 
-        // Define the output file with a new filename and .webp extension
         String destinationFileName = UUID.randomUUID().toString() + "_compressed.jpg";
         String destinationPath = sourcePath.replace(file.getName(), destinationFileName);
         File outputFile = new File(destinationPath);
 
-        // Compress and save the bitmap in WEBP lossless format
         try (FileOutputStream out = new FileOutputStream(outputFile)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)) {
