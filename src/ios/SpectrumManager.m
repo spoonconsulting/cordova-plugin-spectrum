@@ -45,11 +45,32 @@
     UIImage* image = [UIImage imageWithContentsOfFile:sourcePath];
     NSData *compressedImageData = UIImageJPEGRepresentation(image, 0.8);
     NSError *writeError = nil;
-
+    
+    CGImageSourceRef sourceRef = CGImageSourceCreateWithData((CFDataRef)compressedImageData, NULL);
+    NSDictionary *metadata = (NSDictionary *)CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(sourceRef, 0, NULL));
+    CFRelease(sourceRef);
+    
     BOOL success = [compressedImageData writeToFile:destinationPath options:NSDataWritingAtomic error:&writeError];
     if (!success) {
         return [self returnErrorResult:command withMsg:writeError.localizedDescription];
     } else {
+        CGImageDestinationRef destinationRef = CGImageDestinationCreateWithURL((CFURLRef)[NSURL fileURLWithPath:destinationPath], (CFStringRef)@"public.jpeg", 1, NULL);
+        if (destinationRef) {
+            CGImageDestinationAddImageFromSource(destinationRef, sourceRef, 0, (CFDictionaryRef)metadata);
+            success = CGImageDestinationFinalize(destinationRef);
+            CFRelease(destinationRef);
+        }
+        
+        if (!success) {
+            return [self returnErrorResult:command withMsg:@"Failed to copy metadata"];
+        }
+        
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        if ([fileManager removeItemAtPath:sourcePath error:nil]) {
+            [fileManager copyItemAtPath:destinationPath toPath:sourcePath error:nil];
+            [fileManager removeItemAtPath:destinationPath error:nil];
+        }
+        
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [pluginResult setKeepCallback:@YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
