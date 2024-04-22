@@ -7,6 +7,7 @@
 
 #import "SpectrumManager.h"
 #import "CDVFile.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 @implementation SpectrumManager
 -(void)compressImage:(CDVInvokedUrlCommand*)command{
     [self.commandDelegate runInBackground:^{
@@ -33,30 +34,29 @@
     NSString* sourcePath = config[@"sourcePath"];
     
     if (!sourcePath)
-        return [self returnErrorResult:command withMsg:@"missing source path"];
+        return [self returnErrorResult:command withMsg:@"Missing source path"];
     
     sourcePath = [self resolveNativePath: sourcePath];
     if (![[NSFileManager defaultManager] fileExistsAtPath:sourcePath])
-        return [self returnErrorResult:command withMsg:@"source file does not exists"];
+        return [self returnErrorResult:command withMsg:@"Source file does not exist"];
     
     NSString* currentFolderPath = [sourcePath stringByDeletingLastPathComponent];
     NSString* timestampName = [NSString stringWithFormat:@"%f.%@",[[NSDate date] timeIntervalSince1970] * 1000, [sourcePath pathExtension]];
     NSString* destinationPath = [currentFolderPath stringByAppendingPathComponent:timestampName];
     UIImage* image = [UIImage imageWithContentsOfFile:sourcePath];
     NSData *compressedImageData = UIImageJPEGRepresentation(image, 0.8);
+    
+    CGImageSourceRef sourceRef = CGImageSourceCreateWithURL((__bridge CFURLRef)[NSURL fileURLWithPath:sourcePath], NULL);
+    NSDictionary *metadata = (__bridge NSDictionary *)CGImageSourceCopyPropertiesAtIndex(sourceRef, 0, NULL);
+    
     NSError *writeError = nil;
-    
-    CGImageSourceRef sourceRef = CGImageSourceCreateWithData((CFDataRef)compressedImageData, NULL);
-    NSDictionary *metadata = (NSDictionary *)CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(sourceRef, 0, NULL));
-    CFRelease(sourceRef);
-    
     BOOL success = [compressedImageData writeToFile:destinationPath options:NSDataWritingAtomic error:&writeError];
     if (!success) {
         return [self returnErrorResult:command withMsg:writeError.localizedDescription];
     } else {
-        CGImageDestinationRef destinationRef = CGImageDestinationCreateWithURL((CFURLRef)[NSURL fileURLWithPath:destinationPath], (CFStringRef)@"public.jpeg", 1, NULL);
+        CGImageDestinationRef destinationRef = CGImageDestinationCreateWithURL((__bridge CFURLRef)[NSURL fileURLWithPath:destinationPath], kUTTypeJPEG, 1, NULL);
         if (destinationRef) {
-            CGImageDestinationAddImageFromSource(destinationRef, sourceRef, 0, (CFDictionaryRef)metadata);
+            CGImageDestinationAddImageFromSource(destinationRef, sourceRef, 0, (__bridge CFDictionaryRef)metadata);
             success = CGImageDestinationFinalize(destinationRef);
             CFRelease(destinationRef);
         }
