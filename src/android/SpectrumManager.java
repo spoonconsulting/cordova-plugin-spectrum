@@ -5,8 +5,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
-import com.facebook.spectrum.Spectrum;
-import com.facebook.spectrum.image.ImageSize;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
