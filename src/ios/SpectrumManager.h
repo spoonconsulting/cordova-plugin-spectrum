@@ -10,7 +10,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SpectrumManager : CDVPlugin{
-    FSPSpectrum *spectrum;
 }
 -(void)compressImage:(CDVInvokedUrlCommand*)command;
 @end
