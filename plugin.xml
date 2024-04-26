@@ -21,6 +21,9 @@
             <feature name="SpectrumManager">
                 <param name="android-package" value="com.spoon.spectrum.SpectrumManager" />
             </feature>
+             <feature name="ImageSize">
+                <param name="android-package" value="com.spoon.spectrum.utils.ImageSize" />
+            </feature>
         </config-file>
         <source-file src="src/android/SpectrumManager.java" target-dir="src/com/spoon/spectrum" />
         <source-file src="src/android/SpoonCameraExif.java" target-dir="src/com/spoon/spectrum" />
