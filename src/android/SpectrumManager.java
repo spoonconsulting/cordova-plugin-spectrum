@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 import androidx.exifinterface.media.ExifInterface;
+import com.spoon.spectrum.utils.ImageSize;
 
 public class SpectrumManager extends CordovaPlugin {
     @Override

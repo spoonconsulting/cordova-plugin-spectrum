@@ -24,6 +24,7 @@
         </config-file>
         <source-file src="src/android/SpectrumManager.java" target-dir="src/com/spoon/spectrum" />
         <source-file src="src/android/SpoonCameraExif.java" target-dir="src/com/spoon/spectrum" />
+        <framework src="com.google.code.findbugs:jsr305:3.0.2"></framework>
     </platform>
 	
 	<!-- ios -->
