@@ -27,9 +27,9 @@
         </config-file>
         <source-file src="src/android/SpectrumManager.java" target-dir="src/com/spoon/spectrum" />
         <source-file src="src/android/SpoonCameraExif.java" target-dir="src/com/spoon/spectrum" />
-        <source-file src="src/android/ImageSize.java" target-dir="src/com/spoon/spectrum/utils" />
-        <source-file src="src/android/DoNotStrip.java" target-dir="src/com/spoon/spectrum/utils" />
-        <source-file src="src/android/Preconditions.java" target-dir="src/com/spoon/spectrum/utils" />
+        <source-file src="src/android/utils/ImageSize.java" target-dir="src/com/spoon/spectrum/utils" />
+        <source-file src="src/android/utils/DoNotStrip.java" target-dir="src/com/spoon/spectrum/utils" />
+        <source-file src="src/android/utils/Preconditions.java" target-dir="src/com/spoon/spectrum/utils" />
         <framework src="com.google.code.findbugs:jsr305:3.0.2"></framework>
     </platform>
 	
