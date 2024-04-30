@@ -5,8 +5,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
-import com.facebook.spectrum.Spectrum;
-import com.facebook.spectrum.image.ImageSize;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -19,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 import androidx.exifinterface.media.ExifInterface;
+import com.spoon.spectrum.utils.ImageSize;
 
 public class SpectrumManager extends CordovaPlugin {
     @Override
