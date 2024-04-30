@@ -7,13 +7,9 @@
 
 #import <Foundation/Foundation.h>
 #import <Cordova/CDVPlugin.h>
-#import <SpectrumKit/SpectrumKit.h>
-#import <SpectrumKit/FSPJpegPlugin.h>
-#import <SpectrumKit/FSPPngPlugin.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SpectrumManager : CDVPlugin{
-    FSPSpectrum *spectrum;
 }
 -(void)compressImage:(CDVInvokedUrlCommand*)command;
 @end

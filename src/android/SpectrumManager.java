@@ -1,44 +1,25 @@
 package com.spoon.spectrum;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
-
-
-import com.facebook.spectrum.DefaultPlugins;
-import com.facebook.spectrum.EncodedImageSink;
-import com.facebook.spectrum.EncodedImageSource;
-import com.facebook.spectrum.Spectrum;
-import com.facebook.spectrum.SpectrumException;
-import com.facebook.spectrum.SpectrumResult;
-import com.facebook.spectrum.SpectrumSoLoader;
-import com.facebook.spectrum.image.ImageSize;
-import com.facebook.spectrum.logging.SpectrumLogcatLogger;
-import com.facebook.spectrum.options.TranscodeOptions;
-import com.facebook.spectrum.requirements.EncodeRequirement;
-import com.facebook.spectrum.requirements.ResizeRequirement;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.UUID;
-
-import static com.facebook.spectrum.image.EncodedImageFormat.JPEG;
+import androidx.exifinterface.media.ExifInterface;
+import com.spoon.spectrum.utils.ImageSize;
 
 public class SpectrumManager extends CordovaPlugin {
-
-    private static Spectrum mSpectrum;
-
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
@@ -62,57 +43,98 @@ public class SpectrumManager extends CordovaPlugin {
     }
 
     private void transcodeImage(String path, int size, CallbackContext callbackContext) {
-        if (mSpectrum == null) {
-            SpectrumSoLoader.init(cordova.getActivity());
-            mSpectrum = Spectrum.make(new SpectrumLogcatLogger(Log.INFO), DefaultPlugins.get());
-        }
         Uri tmpSrc = Uri.parse(path);
         final Uri sourceUri = tmpSrc.getScheme() != null ? webView.getResourceApi().remapUri(tmpSrc) : tmpSrc;
         final String sourcePath = sourceUri.toString();
         File file = new File(sourcePath);
         if (!file.exists()) {
-            callbackContext.error("source file does not exists");
+            callbackContext.error("source file does not exist");
             return;
         }
-        InputStream inputStream;
+
+        Bitmap bitmap;
         try {
-            inputStream = new FileInputStream(sourcePath);
-        } catch (FileNotFoundException e) {
-            sendErrorResultForException(callbackContext, e);
+            bitmap = BitmapFactory.decodeFile(sourcePath);
+            if (bitmap == null) {
+                callbackContext.error("Could not decode the image");
+                return;
+            }
+        } catch (Exception e) {
+            callbackContext.error("Failed to load image: " + e.getMessage());
             return;
         }
-        final TranscodeOptions transcodeOptions;
+
+        // Resize the bitmap if necessary
         ImageSize targetSize = getImageSize(path, size);
-        transcodeOptions = TranscodeOptions.Builder(new EncodeRequirement(JPEG, 80)).resize(ResizeRequirement.Mode.EXACT_OR_SMALLER, targetSize).build();
-        String fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
-        String destinationFileName = UUID.randomUUID().toString() + "_compressed." + fileExtension;
+        if (bitmap.getWidth() != targetSize.width || bitmap.getHeight() != targetSize.height) {
+            bitmap = Bitmap.createScaledBitmap(bitmap, targetSize.width, targetSize.height, true);
+        }
+
+        String destinationFileName = UUID.randomUUID().toString() + "_compressed.jpg";
         String destinationPath = sourcePath.replace(file.getName(), destinationFileName);
-        SpectrumResult result;
+        File outputFile = new File(destinationPath);
+
+        try (FileOutputStream out = new FileOutputStream(outputFile)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)) {
+                    callbackContext.error("Failed to compress image");
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            callbackContext.error("Failed to save compressed image: " + e.getMessage());
+            return;
+        } finally {
+            if (!bitmap.isRecycled()) {
+                bitmap.recycle();
+            }
+        }
+
+        // Initialize ExifInterface for the original and compressed image
+        ExifInterface originalExif = null;
         try {
-            result = mSpectrum.transcode(
-                    EncodedImageSource.from(inputStream),
-                    EncodedImageSink.from(destinationPath),
-                    transcodeOptions,
-                    "com.spectrum-plugin");
-        } catch (SpectrumException | FileNotFoundException e) {
-            sendErrorResultForException(callbackContext, e);
+            originalExif = new ExifInterface(sourcePath);
+        } catch (IOException e) {
+            Log.d("Can't extract origExifs", e.toString());
+        }
+
+        // Iterate over all EXIF tags in the original file
+        if (originalExif != null) {
+            ExifInterface compressedExif = null;
+            try {
+                compressedExif = new ExifInterface(destinationPath);
+            } catch (IOException e) {
+                Log.d("Can't extract compExifs", e.toString());
+            }
+
+            for (String attribute : SpoonCameraExif.COMMON_TAGS) {
+                String value = originalExif.getAttribute(attribute);
+                if (value != null) {
+                    compressedExif.setAttribute(attribute, value);
+                }
+            }
+            if (compressedExif != null) {
+                try {
+                    compressedExif.saveAttributes();
+                } catch (IOException e) {
+                    Log.d("Error saving exifs ", e.toString());
+                }
+            }
+        }
+
+        // Replace the original file with the compressed one
+        if (!file.delete()) {
+            callbackContext.error("could not delete source image");
             return;
         }
-        if (result.isSuccessful()) {
-            if (!file.delete()) {
-                callbackContext.error("could not delete source image");
-                return;
-            }
-            if (!new File(destinationPath).renameTo(file)) {
-                callbackContext.error("could not rename image");
-                return;
-            }
-            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-            pluginResult.setKeepCallback(true);
-            callbackContext.sendPluginResult(pluginResult);
+        if (!outputFile.renameTo(file)) {
+            callbackContext.error("could not rename image");
             return;
         }
-        callbackContext.error("could not compress image");
+
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+        pluginResult.setKeepCallback(true);
+        callbackContext.sendPluginResult(pluginResult);
     }
 
     private ImageSize getImageSize(String sourcePath, int defaultSize) {
