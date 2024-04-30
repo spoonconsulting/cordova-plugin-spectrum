@@ -4,6 +4,10 @@
 
 Cordova plugin wrapper for [Spectrum](https://libspectrum.io/) image compression library
 
+**Removal of Spectrum**
+cordova-ios 7 will no longer support framework tag for pod installation and Spectrum sdk is no more maintained and will not provide support for its SDK to use framework. The compression logics have been replaced by native api for both platforms.
+
+
 **Supported Platforms**
 - iOS
 - Android
