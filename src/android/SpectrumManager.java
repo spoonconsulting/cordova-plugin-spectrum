@@ -80,6 +80,12 @@ public class SpectrumManager extends CordovaPlugin {
                     callbackContext.error("Failed to compress image");
                     return;
                 }
+            } else {
+                Log.d("Warning","Cannot compress image on Android version < 11");
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+                pluginResult.setKeepCallback(true);
+                callbackContext.sendPluginResult(pluginResult);
+                return;
             }
         } catch (Exception e) {
             callbackContext.error("Failed to save compressed image: " + e.getMessage());
