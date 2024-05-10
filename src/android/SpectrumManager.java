@@ -74,17 +74,14 @@ public class SpectrumManager extends CordovaPlugin {
         String destinationPath = sourcePath.replace(file.getName(), destinationFileName);
         File outputFile = new File(destinationPath);
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            callbackContext.error("Cannot compress image on Android version < 11");
+            return;
+        }
+
         try (FileOutputStream out = new FileOutputStream(outputFile)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)) {
-                    callbackContext.error("Failed to compress image");
-                    return;
-                }
-            } else {
-                Log.d("Warning","Cannot compress image on Android version < 11");
-                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-                pluginResult.setKeepCallback(true);
-                callbackContext.sendPluginResult(pluginResult);
+            if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)) {
+                callbackContext.error("Failed to compress image");
                 return;
             }
         } catch (Exception e) {
